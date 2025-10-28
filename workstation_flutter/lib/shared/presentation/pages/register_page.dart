@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:workstation_flutter/home/presentation/home_page.dart';
 import '../widgets/base_text_field.dart';
 import '../widgets/base_button.dart';
 
@@ -32,18 +33,10 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 
   void _handleRegister() {
-    if (_formKey.currentState!.validate()) {
-      // TODO: Implement register logic here
-      print('Name: ${_nameController.text}');
-      print('Last Name: ${_lastNameController.text}');
-      print('DNI: ${_dniController.text}');
-      print('Email: ${_emailController.text}');
-      print('Phone: ${_phoneController.text}');
-      
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Registro exitoso!')),
-      );
-    }
+
+    Navigator.push(context, MaterialPageRoute(
+      builder: (context) => const HomePage()));
+    
   }
 
   @override
@@ -60,22 +53,18 @@ class _RegisterPageState extends State<RegisterPage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  // Logo with yellow circle background
                   Container(
                     width: 120,
                     height: 120,
                     decoration: const BoxDecoration(
-                      color: Color(0xFFE8F48C), // Light yellow
+                      color: Color(0xFFE8F48C),
                       shape: BoxShape.circle,
                     ),
                     child: Center(
-                      child: Icon(
-                        Icons.home_outlined,
-                        size: 60,
-                        color: Colors.black87,
+                      child: Image.asset(
+                        'assets/logo/app_logo.png', 
+                        width: 60,
                       ),
-                      // TODO: Replace with your custom logo
-                      // child: Image.asset('assets/images/logo.png', width: 60),
                     ),
                   ),
                   const SizedBox(height: 24),

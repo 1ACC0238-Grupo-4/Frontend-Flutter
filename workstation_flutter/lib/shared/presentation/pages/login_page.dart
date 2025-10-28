@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:workstation_flutter/home/presentation/home_page.dart';
 import '../widgets/base_text_field.dart';
 import '../widgets/base_button.dart';
 import 'register_page.dart';
@@ -22,22 +23,10 @@ class _LoginPageState extends State<LoginPage> {
     super.dispose();
   }
 
-  void _handleLogin() {
-    if (_formKey.currentState!.validate()) {
-      // TODO: Implement login logic here
-      print('Email: ${_emailController.text}');
-      print('Password: ${_passwordController.text}');
-      
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Login functionality coming soon!')),
-      );
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF8BC34A), // Green background
+      backgroundColor: const Color(0xFF8BC34A),
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
@@ -57,13 +46,10 @@ class _LoginPageState extends State<LoginPage> {
                       shape: BoxShape.circle,
                     ),
                     child: Center(
-                      child: Icon(
-                        Icons.home_outlined,
-                        size: 60,
-                        color: Colors.black87,
+                      child: Image.asset(
+                        'assets/logo/app_logo.png', 
+                        width: 60,
                       ),
-                      // TODO: Replace with your custom logo
-                      // child: Image.asset('assets/images/logo.png', width: 60),
                     ),
                   ),
                   const SizedBox(height: 24),
@@ -79,10 +65,7 @@ class _LoginPageState extends State<LoginPage> {
                   const SizedBox(height: 8),
                   const Text(
                     'Iniciar Sesion',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.black87,
-                    ),
+                    style: TextStyle(fontSize: 16, color: Colors.black87),
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 40),
@@ -117,7 +100,14 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                   const SizedBox(height: 32),
                   BaseButton(
-                    onPressed: _handleLogin,
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const HomePage(),
+                        ),
+                      );
+                    },
                     icon: Icons.arrow_forward,
                   ),
                   const SizedBox(height: 24),
@@ -128,10 +118,7 @@ class _LoginPageState extends State<LoginPage> {
                     child: RichText(
                       text: const TextSpan(
                         text: 'Olvidaste tu ',
-                        style: TextStyle(
-                          color: Colors.black87,
-                          fontSize: 14,
-                        ),
+                        style: TextStyle(color: Colors.black87, fontSize: 14),
                         children: [
                           TextSpan(
                             text: 'contraseña?',
@@ -157,10 +144,7 @@ class _LoginPageState extends State<LoginPage> {
                     child: RichText(
                       text: const TextSpan(
                         text: 'Sino tienes cuenta, ',
-                        style: TextStyle(
-                          color: Colors.black87,
-                          fontSize: 14,
-                        ),
+                        style: TextStyle(color: Colors.black87, fontSize: 14),
                         children: [
                           TextSpan(
                             text: 'regístrate aquí',
@@ -176,10 +160,7 @@ class _LoginPageState extends State<LoginPage> {
                   const SizedBox(height: 40),
                   const Text(
                     'Copyright 2025@ Workstation, PinkCells',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.black54,
-                    ),
+                    style: TextStyle(fontSize: 12, color: Colors.black54),
                     textAlign: TextAlign.center,
                   ),
                 ],
