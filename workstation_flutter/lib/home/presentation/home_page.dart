@@ -1,9 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:workstation_flutter/chats/presentation/chats_page.dart';
-import 'package:workstation_flutter/offices/presentation/offices_page.dart';
-import 'package:workstation_flutter/profile/presentation/profile_page.dart';
-import 'package:workstation_flutter/search/presentation/search_page.dart';
-import 'package:workstation_flutter/shared/presentation/widgets/bottom_nav_bar_widget.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -13,46 +8,10 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  int _currentIndex = 0;
-
-  void _onNavTap(int index) {
-    setState(() {
-      _currentIndex = index;
-    });
-    Widget page;
-    switch (index) {
-      case 0:
-        return; // Already on this page
-      case 1:
-        page = const OfficesPage();
-        break;
-      case 2:
-        page = const SearchPage();
-        break;
-      case 3:
-        page = const ChatsPage();
-        break;
-      case 4:
-        page = const ProfilePage();
-        break;
-      default:
-        return;
-    }
-      Navigator.pushReplacement(
-      context,
-      PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) => page,
-        transitionDuration: Duration.zero,
-        reverseTransitionDuration: Duration.zero,
-      ),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: SafeArea(
+    return SafeArea(
         child: Column(
           children: [
             // Header with wave decoration
@@ -172,11 +131,6 @@ class _HomePageState extends State<HomePage> {
             ),
           ],
         ),
-      ),
-      bottomNavigationBar: BottomNavBar(
-        currentIndex: _currentIndex,
-        onTap: _onNavTap,
-      ),
-    );
+      );
   }
 }

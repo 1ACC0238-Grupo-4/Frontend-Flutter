@@ -1,11 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:workstation_flutter/chats/presentation/chats_page.dart';
-import 'package:workstation_flutter/home/presentation/home_page.dart';
 import 'package:workstation_flutter/offices/domain/office.dart';
 import 'package:workstation_flutter/offices/presentation/widgets/office_card.dart';
-import 'package:workstation_flutter/profile/presentation/profile_page.dart';
-import 'package:workstation_flutter/search/presentation/search_page.dart';
-import 'package:workstation_flutter/shared/presentation/widgets/bottom_nav_bar_widget.dart';
 
 class OfficesPage extends StatefulWidget {
   const OfficesPage({super.key});
@@ -81,45 +76,10 @@ class _OfficesPageState extends State<OfficesPage> {
     ),
   ];
 
-  void _onNavTap(int index) {
-    setState(() {
-      _currentIndex = index;
-    });
-    Widget page;
-    switch (index) {
-      case 0:
-        page = const HomePage();
-        break;
-      case 1:
-        return;
-      case 2:
-        page = const SearchPage();
-        break;
-      case 3:
-        page = const ChatsPage();
-        break;
-      case 4:
-        page = const ProfilePage();
-        break;
-      default:
-        return;
-    }
-
-    Navigator.pushReplacement(
-      context,
-      PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) => page,
-        transitionDuration: Duration.zero,
-        reverseTransitionDuration: Duration.zero,
-      ),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: SafeArea(
+    return SafeArea(
         child: Column(
           children: [
             // Header with wave decoration
@@ -163,11 +123,6 @@ class _OfficesPageState extends State<OfficesPage> {
             ),
           ],
         ),
-      ),
-      bottomNavigationBar: BottomNavBar(
-        currentIndex: _currentIndex,
-        onTap: _onNavTap,
-      ),
-    );
+      );
   }
 }

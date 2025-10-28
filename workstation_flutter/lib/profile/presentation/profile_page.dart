@@ -1,10 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:workstation_flutter/chats/presentation/chats_page.dart';
-import 'package:workstation_flutter/home/presentation/home_page.dart';
-import 'package:workstation_flutter/offices/presentation/offices_page.dart';
 import 'package:workstation_flutter/profile/domain/user.dart';
-import 'package:workstation_flutter/search/presentation/search_page.dart';
-import 'package:workstation_flutter/shared/presentation/widgets/bottom_nav_bar_widget.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -14,8 +9,6 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageeState extends State<ProfilePage> {
-  final int _currentIndex = 4;
-
   // Mock user data
   late User _currentUser;
 
@@ -31,38 +24,6 @@ class _ProfilePageeState extends State<ProfilePage> {
     );
   }
 
-  void _onNavTap(int index) {
-    if (index == _currentIndex) return;
-    
-    Widget page;
-    switch (index) {
-      case 0:
-        page = const HomePage();
-        break;
-      case 1:
-        page = const OfficesPage();
-        break;
-      case 2:
-        page = const SearchPage();
-        break;
-      case 3:
-        page = const ChatsPage();
-        break;
-      case 4:
-        return; // Already on this page
-      default:
-        return;
-    }
-
-    Navigator.pushReplacement(
-      context,
-      PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) => page,
-        transitionDuration: Duration.zero,
-        reverseTransitionDuration: Duration.zero,
-      ),
-    );
-  }
 
   void _editField(String fieldName, String currentValue) {
     final controller = TextEditingController(text: currentValue);
@@ -149,9 +110,7 @@ class _ProfilePageeState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: SafeArea(
+    return SafeArea(
         child: Column(
           children: [
             // Header with inverted wave decoration
@@ -282,12 +241,8 @@ class _ProfilePageeState extends State<ProfilePage> {
             ),
           ],
         ),
-      ),
-      bottomNavigationBar: BottomNavBar(
-        currentIndex: _currentIndex,
-        onTap: _onNavTap,
-      ),
-    );
+      );
+    
   }
 
   Widget _buildEditableField(String label, String value) {

@@ -7,7 +7,6 @@ import 'package:workstation_flutter/offices/presentation/widgets/office_card.dar
 import 'package:workstation_flutter/profile/presentation/profile_page.dart';
 import 'package:workstation_flutter/shared/presentation/widgets/bottom_nav_bar_widget.dart';
 
-
 class SearchPage extends StatefulWidget {
   const SearchPage({super.key});
 
@@ -18,7 +17,7 @@ class SearchPage extends StatefulWidget {
 class _SearchPageState extends State<SearchPage> {
   int _currentIndex = 2;
   final TextEditingController _searchController = TextEditingController();
-  
+
   RangeValues _capacityRange = const RangeValues(1, 50);
   final Set<OfficeService> _selectedServices = {};
 
@@ -27,131 +26,143 @@ class _SearchPageState extends State<SearchPage> {
       id: '1',
       location: 'Oficina Ejecutiva - Miraflores',
       description: 'Oficina privada con vista al mar',
-      imageUrl: 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=800',
+      imageUrl:
+          'https://images.unsplash.com/photo-1497366216548-37526070297c?w=800',
       capacity: 1,
       costPerDay: 150,
       available: true,
-      services: [OfficeService.wifi, OfficeService.coffee, OfficeService.airConditioning],
+      services: [
+        OfficeService.wifi,
+        OfficeService.coffee,
+        OfficeService.airConditioning,
+      ],
     ),
     Office(
       id: '2',
       location: 'Sala de Reuniones - San Isidro',
       description: 'Espacio colaborativo moderno',
-      imageUrl: 'https://images.unsplash.com/photo-1497366811353-6870744d04b2?w=800',
+      imageUrl:
+          'https://images.unsplash.com/photo-1497366811353-6870744d04b2?w=800',
       capacity: 8,
       costPerDay: 300,
       available: true,
-      services: [OfficeService.wifi, OfficeService.projector, OfficeService.whiteboard],
+      services: [
+        OfficeService.wifi,
+        OfficeService.projector,
+        OfficeService.whiteboard,
+      ],
     ),
     Office(
       id: '3',
       location: 'Sala Conferencias - Surco',
       description: 'Sala grande para presentaciones',
-      imageUrl: 'https://images.unsplash.com/photo-1497366754035-f200968a6e72?w=800',
+      imageUrl:
+          'https://images.unsplash.com/photo-1497366754035-f200968a6e72?w=800',
       capacity: 20,
       costPerDay: 500,
       available: true,
-      services: [OfficeService.wifi, OfficeService.projector, OfficeService.airConditioning, OfficeService.coffee],
+      services: [
+        OfficeService.wifi,
+        OfficeService.projector,
+        OfficeService.airConditioning,
+        OfficeService.coffee,
+      ],
     ),
     Office(
       id: '4',
       location: 'Oficina Compartida - Barranco',
       description: 'Espacio de coworking creativo',
-      imageUrl: 'https://images.unsplash.com/photo-1497366412874-3415097a27e7?w=800',
+      imageUrl:
+          'https://images.unsplash.com/photo-1497366412874-3415097a27e7?w=800',
       capacity: 15,
       costPerDay: 250,
       available: true,
-      services: [OfficeService.wifi, OfficeService.kitchen, OfficeService.coffee],
+      services: [
+        OfficeService.wifi,
+        OfficeService.kitchen,
+        OfficeService.coffee,
+      ],
     ),
     Office(
       id: '5',
       location: 'Oficina Premium - La Molina',
       description: 'Oficina de lujo totalmente equipada',
-      imageUrl: 'https://images.unsplash.com/photo-1497366858526-0766cadbe8fa?w=800',
+      imageUrl:
+          'https://images.unsplash.com/photo-1497366858526-0766cadbe8fa?w=800',
       capacity: 4,
       costPerDay: 350,
       available: true,
-      services: [OfficeService.wifi, OfficeService.coffee, OfficeService.airConditioning, OfficeService.printer],
+      services: [
+        OfficeService.wifi,
+        OfficeService.coffee,
+        OfficeService.airConditioning,
+        OfficeService.printer,
+      ],
     ),
     Office(
       id: '6',
       location: 'Coworking Space - Lince',
       description: 'Espacio abierto y luminoso',
-      imageUrl: 'https://images.unsplash.com/photo-1497215728101-856f4ea42174?w=800',
+      imageUrl:
+          'https://images.unsplash.com/photo-1497215728101-856f4ea42174?w=800',
       capacity: 30,
       costPerDay: 100,
       available: true,
-      services: [OfficeService.wifi, OfficeService.kitchen, OfficeService.parking],
+      services: [
+        OfficeService.wifi,
+        OfficeService.kitchen,
+        OfficeService.parking,
+      ],
     ),
     Office(
       id: '7',
       location: 'Sala Ejecutiva - Jesús María',
       description: 'Sala de juntas elegante',
-      imageUrl: 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=800',
+      imageUrl:
+          'https://images.unsplash.com/photo-1497366216548-37526070297c?w=800',
       capacity: 12,
       costPerDay: 400,
       available: true,
-      services: [OfficeService.wifi, OfficeService.projector, OfficeService.whiteboard, OfficeService.coffee],
+      services: [
+        OfficeService.wifi,
+        OfficeService.projector,
+        OfficeService.whiteboard,
+        OfficeService.coffee,
+      ],
     ),
   ];
 
   List<Office> get _filteredOffices {
     return _allOffices.where((office) {
       // Filtro por capacidad
-      if (office.capacity < _capacityRange.start || 
+      if (office.capacity < _capacityRange.start ||
           office.capacity > _capacityRange.end) {
         return false;
       }
-      
+
       // Filtro por servicios
       if (_selectedServices.isNotEmpty) {
-        if (!_selectedServices.every((service) => office.services.contains(service))) {
+        if (!_selectedServices.every(
+          (service) => office.services.contains(service),
+        )) {
           return false;
         }
       }
-      
+
       // Filtro por búsqueda de texto
       if (_searchController.text.isNotEmpty) {
-        return office.location.toLowerCase().contains(_searchController.text.toLowerCase()) ||
-               (office.description?.toLowerCase().contains(_searchController.text.toLowerCase()) ?? false);
+        return office.location.toLowerCase().contains(
+              _searchController.text.toLowerCase(),
+            ) ||
+            (office.description?.toLowerCase().contains(
+                  _searchController.text.toLowerCase(),
+                ) ??
+                false);
       }
-      
+
       return true;
     }).toList();
   }
-
-  void _onNavTap(int index) {
-    setState(() {
-      _currentIndex = index;
-    });
-Widget page;
-    switch (index) {
-      case 0:
-        page = const HomePage();
-        break;
-      case 1:
-        page = const OfficesPage();
-        break;
-      case 2:
-        return; 
-      case 3:
-        page = const ChatsPage();
-        break;
-      case 4:
-        page = const ProfilePage();
-        break;
-      default:
-        return;
-    }
-
-    Navigator.pushReplacement(
-      context,
-      PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) => page,
-        transitionDuration: Duration.zero,
-        reverseTransitionDuration: Duration.zero,
-      ),
-    );  }
 
   void _showFilterDialog() {
     showDialog(
@@ -248,9 +259,7 @@ Widget page;
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: SafeArea(
+    return SafeArea(
         child: Column(
           children: [
             // Header with wave decoration
@@ -288,7 +297,10 @@ Widget page;
                   hintStyle: TextStyle(color: Colors.black.withOpacity(0.6)),
                   filled: true,
                   fillColor: const Color(0xFFE8F48C),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 16,
+                  ),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(25),
                     borderSide: BorderSide.none,
@@ -327,7 +339,9 @@ Widget page;
                     office: _filteredOffices[index],
                     showButton: true,
                     onTap: () {
-                      print('Tapped on office: ${_filteredOffices[index].location}');
+                      print(
+                        'Tapped on office: ${_filteredOffices[index].location}',
+                      );
                     },
                   );
                 },
@@ -335,11 +349,6 @@ Widget page;
             ),
           ],
         ),
-      ),
-      bottomNavigationBar: BottomNavBar(
-        currentIndex: _currentIndex,
-        onTap: _onNavTap,
-      ),
-    );
+      );
   }
 }

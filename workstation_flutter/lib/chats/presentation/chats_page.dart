@@ -1,10 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:workstation_flutter/chats/domain/chat.dart';
-import 'package:workstation_flutter/home/presentation/home_page.dart';
-import 'package:workstation_flutter/offices/presentation/offices_page.dart';
-import 'package:workstation_flutter/profile/presentation/profile_page.dart';
-import 'package:workstation_flutter/search/presentation/search_page.dart';
-import 'package:workstation_flutter/shared/presentation/widgets/bottom_nav_bar_widget.dart';
 
 class ChatsPage extends StatefulWidget {
   const ChatsPage({super.key});
@@ -55,85 +50,44 @@ class _ChatsPageState extends State<ChatsPage> {
     ),
   ];
 
-  void _onNavTap(int index) {
-    if (index == _currentIndex) return;
-    
-    Widget page;
-    switch (index) {
-      case 0:
-        page = const HomePage();
-        break;
-      case 1:
-        page = const OfficesPage();
-        break;
-      case 2:
-        page = const SearchPage();
-        break;
-      case 3:
-        return; // Already on this page
-      case 4:
-        page = const ProfilePage();
-        break;
-      default:
-        return;
-    }
-
-    Navigator.pushReplacement(
-      context,
-      PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) => page,
-        transitionDuration: Duration.zero,
-        reverseTransitionDuration: Duration.zero,
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: SafeArea(
-        child: Column(
-          children: [
-            // Header with wave decoration
-            Container(
-              height: 80,
-              decoration: const BoxDecoration(
-                color: Color(0xFF8BC34A),
-                borderRadius: BorderRadius.only(
-                  bottomLeft: Radius.elliptical(200, 30),
-                  bottomRight: Radius.elliptical(200, 30),
-                ),
+    return SafeArea(
+      child: Column(
+        children: [
+          Container(
+            height: 80,
+            decoration: const BoxDecoration(
+              color: Color(0xFF8BC34A),
+              borderRadius: BorderRadius.only(
+                bottomLeft: Radius.elliptical(200, 30),
+                bottomRight: Radius.elliptical(200, 30),
               ),
-              child: const Center(
-                child: Text(
-                  'Chats',
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black87,
-                  ),
+            ),
+            child: const Center(
+              child: Text(
+                'Chats',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
                 ),
               ),
             ),
-            const SizedBox(height: 16),
-            // Chat list
-            Expanded(
-              child: ListView.builder(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                itemCount: _chats.length,
-                itemBuilder: (context, index) {
-                  final chat = _chats[index];
-                  return _buildChatItem(chat);
-                },
-              ),
+          ),
+          const SizedBox(height: 16),
+          // Chat list
+          Expanded(
+            child: ListView.builder(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              itemCount: _chats.length,
+              itemBuilder: (context, index) {
+                final chat = _chats[index];
+                return _buildChatItem(chat);
+              },
             ),
-          ],
-        ),
-      ),
-      bottomNavigationBar: BottomNavBar(
-        currentIndex: _currentIndex,
-        onTap: _onNavTap,
+          ),
+        ],
       ),
     );
   }
