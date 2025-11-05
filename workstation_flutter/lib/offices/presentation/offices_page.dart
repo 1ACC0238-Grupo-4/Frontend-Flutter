@@ -10,7 +10,6 @@ class OfficesPage extends StatefulWidget {
 }
 
 class _OfficesPageState extends State<OfficesPage> {
-  int _currentIndex = 1;
 
   final List<Office> _reservedOffices = [
     Office(

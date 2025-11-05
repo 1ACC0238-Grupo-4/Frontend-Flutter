@@ -1,11 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:workstation_flutter/chats/presentation/chats_page.dart';
-import 'package:workstation_flutter/home/presentation/home_page.dart';
 import 'package:workstation_flutter/offices/domain/office.dart';
-import 'package:workstation_flutter/offices/presentation/offices_page.dart';
 import 'package:workstation_flutter/offices/presentation/widgets/office_card.dart';
-import 'package:workstation_flutter/profile/presentation/profile_page.dart';
-import 'package:workstation_flutter/shared/presentation/widgets/bottom_nav_bar_widget.dart';
+
 
 class SearchPage extends StatefulWidget {
   const SearchPage({super.key});
@@ -15,7 +11,6 @@ class SearchPage extends StatefulWidget {
 }
 
 class _SearchPageState extends State<SearchPage> {
-  int _currentIndex = 2;
   final TextEditingController _searchController = TextEditingController();
 
   RangeValues _capacityRange = const RangeValues(1, 50);
@@ -338,6 +333,8 @@ class _SearchPageState extends State<SearchPage> {
                   return OfficeCard(
                     office: _filteredOffices[index],
                     showButton: true,
+                    isReserved: false,
+                    
                     onTap: () {
                       print(
                         'Tapped on office: ${_filteredOffices[index].location}',

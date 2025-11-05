@@ -7,6 +7,8 @@ class BaseTextField extends StatelessWidget {
   final TextInputType? keyboardType;
   final String? Function(String?)? validator;
   final Widget? suffixIcon;
+  final Function(String)? onChanged;
+  final bool enabled;
 
   const BaseTextField({
     super.key,
@@ -16,6 +18,8 @@ class BaseTextField extends StatelessWidget {
     this.keyboardType,
     this.validator,
     this.suffixIcon,
+    this.onChanged,
+    this.enabled = true,
   });
 
   @override
@@ -25,6 +29,8 @@ class BaseTextField extends StatelessWidget {
       obscureText: obscureText,
       keyboardType: keyboardType,
       validator: validator,
+      onChanged: onChanged,
+      enabled: enabled,
       style: const TextStyle(
         color: Colors.black87,
         fontSize: 14,
@@ -36,7 +42,7 @@ class BaseTextField extends StatelessWidget {
           fontSize: 14,
         ),
         filled: true,
-        fillColor: const Color(0xFFD4E99F), // Light green
+        fillColor: const Color(0xFFD4E99F),
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 20,
           vertical: 16,
@@ -69,6 +75,10 @@ class BaseTextField extends StatelessWidget {
             color: Colors.red,
             width: 2,
           ),
+        ),
+        disabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(25),
+          borderSide: BorderSide.none,
         ),
         suffixIcon: suffixIcon,
       ),

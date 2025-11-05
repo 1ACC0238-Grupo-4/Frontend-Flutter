@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:workstation_flutter/chats/domain/chat.dart';
+import 'package:workstation_flutter/chats/presentation/chat_details_page.dart';
 
 class ChatsPage extends StatefulWidget {
   const ChatsPage({super.key});
@@ -9,7 +10,6 @@ class ChatsPage extends StatefulWidget {
 }
 
 class _ChatsPageState extends State<ChatsPage> {
-  final int _currentIndex = 3;
 
   // Mock data - En producción esto vendría de una API
   final List<Chat> _chats = [
@@ -108,15 +108,18 @@ class _ChatsPageState extends State<ChatsPage> {
       ),
       child: ListTile(
         contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        leading: CircleAvatar(
-          radius: 30,
-          backgroundColor: const Color(0xFF8BC34A),
-          backgroundImage: chat.contactImageUrl != null
-              ? NetworkImage(chat.contactImageUrl!)
-              : null,
-          child: chat.contactImageUrl == null
-              ? const Icon(Icons.person, color: Colors.white, size: 30)
-              : null,
+        leading: Hero( // ← Agrega Hero aquí
+          tag: 'chat_${chat.id}',
+          child: CircleAvatar(
+            radius: 30,
+            backgroundColor: const Color(0xFF8BC34A),
+            backgroundImage: chat.contactImageUrl != null
+                ? NetworkImage(chat.contactImageUrl!)
+                : null,
+            child: chat.contactImageUrl == null
+                ? const Icon(Icons.person, color: Colors.white, size: 30)
+                : null,
+          ),
         ),
         title: Text(
           chat.contactName,
@@ -137,9 +140,13 @@ class _ChatsPageState extends State<ChatsPage> {
                 overflow: TextOverflow.ellipsis,
               )
             : null,
-        onTap: () {
-          // TODO: Navigate to chat detail
-          print('Open chat with: ${chat.contactName}');
+        onTap: () { // ← Actualiza el onTap
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ChatDetailPage(chat: chat),
+            ),
+          );
         },
       ),
     );

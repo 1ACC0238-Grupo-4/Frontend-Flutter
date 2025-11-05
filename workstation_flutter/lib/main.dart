@@ -1,22 +1,32 @@
 import 'package:flutter/material.dart';
-import 'package:workstation_flutter/shared/presentation/widgets/main_navigator.dart';
-import 'shared/presentation/pages/login_page.dart';
-void main(){
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:workstation_flutter/auth/data/auth_service.dart';
+import 'package:workstation_flutter/auth/presentation/blocs/login_blocs/login_bloc.dart';
+import 'package:workstation_flutter/auth/presentation/pages/login_page.dart';
+
+void main() {
   runApp(MyApp());
 }
 
-class MyApp extends StatelessWidget{
+class MyApp extends StatelessWidget {
   const MyApp({super.key});
+
+  
   @override
-  Widget build (BuildContext context){
+  Widget build(BuildContext context) {
     return MaterialApp(
-      title: "Workstation Flutter App",
+      title: 'Workstation',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF8BC34A)),
         useMaterial3: true,
       ),
-      home: const MainNavigation(),
+      home: BlocProvider(
+        create: (context) => LoginBloc(
+          service: AuthService(), 
+        ),
+        child: const LoginPage(),
+      ),
     );
   }
 }

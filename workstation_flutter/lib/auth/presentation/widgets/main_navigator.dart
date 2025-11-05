@@ -4,7 +4,7 @@ import 'package:workstation_flutter/home/presentation/home_page.dart';
 import 'package:workstation_flutter/offices/presentation/offices_page.dart';
 import 'package:workstation_flutter/profile/presentation/profile_page.dart';
 import 'package:workstation_flutter/search/presentation/search_page.dart';
-import 'package:workstation_flutter/shared/presentation/widgets/bottom_nav_bar_widget.dart';
+import 'package:workstation_flutter/auth/presentation/widgets/bottom_nav_bar_widget.dart';
 
 class MainNavigation extends StatefulWidget {
   final int initialIndex;

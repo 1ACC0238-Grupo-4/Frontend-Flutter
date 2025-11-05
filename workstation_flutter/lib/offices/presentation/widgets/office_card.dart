@@ -1,25 +1,38 @@
 import 'package:flutter/material.dart';
 import 'package:workstation_flutter/offices/domain/office.dart';
-
+import 'package:workstation_flutter/offices/presentation/office_detail_page.dart';
 
 class OfficeCard extends StatelessWidget {
   final Office office;
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
   final bool showButton;
+  final bool isReserved; 
 
   const OfficeCard({
     super.key,
     required this.office,
-    required this.onTap,
+    this.onTap,
     this.showButton = false,
-  });
+    this.isReserved = true,   });
+
+  void _navigateToDetail(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => OfficeDetailPage(
+          office: office,
+          isReserved: isReserved,
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
-        color: const Color(0xFFE8F48C), // Light yellow
+        color: const Color(0xFFE8F48C),
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
@@ -30,27 +43,35 @@ class OfficeCard extends StatelessWidget {
         ],
       ),
       child: InkWell(
-        onTap: onTap,
+        onTap: () {
+          if (onTap != null) {
+            onTap!();
+          }
+          _navigateToDetail(context);
+        },
         borderRadius: BorderRadius.circular(20),
         child: Padding(
           padding: const EdgeInsets.all(12.0),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Image
-              ClipRRect(
-                borderRadius: BorderRadius.circular(15),
-                child: office.imageUrl != null
-                    ? Image.network(
-                        office.imageUrl!,
-                        width: 120,
-                        height: 120,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) {
-                          return _buildPlaceholderImage();
-                        },
-                      )
-                    : _buildPlaceholderImage(),
+              // Image with Hero animation
+              Hero(
+                tag: 'office_${office.id}',
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(15),
+                  child: office.imageUrl != null
+                      ? Image.network(
+                          office.imageUrl!,
+                          width: 120,
+                          height: 120,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) {
+                            return _buildPlaceholderImage();
+                          },
+                        )
+                      : _buildPlaceholderImage(),
+                ),
               ),
               const SizedBox(width: 12),
               // Content
@@ -118,12 +139,15 @@ class OfficeCard extends StatelessWidget {
                       Align(
                         alignment: Alignment.centerRight,
                         child: ElevatedButton(
-                          onPressed: onTap,
+                          onPressed: () => _navigateToDetail(context),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFF8BC34A),
                             foregroundColor: Colors.black87,
                             elevation: 0,
-                            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 20,
+                              vertical: 8,
+                            ),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(20),
                             ),
