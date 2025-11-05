@@ -34,14 +34,8 @@ class _LoginPageState extends State<LoginPage> {
       backgroundColor: const Color(0xFF8BC34A),
       body: BlocConsumer<LoginBloc, LoginState>(
         listener: (context, state) {
-          // Debug logging
-          print('LoginPage - Estado actual: ${state.status}');
-          print('LoginPage - Email: ${state.email}');
-          print('LoginPage - Password length: ${state.password.length}');
-          
-          // Navegar cuando el login sea exitoso
+
           if (state.status == Status.success) {
-            print('LoginPage - Login exitoso, navegando a MainNavigation');
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(
@@ -50,9 +44,7 @@ class _LoginPageState extends State<LoginPage> {
             );
           }
 
-          // Mostrar error si falla
           if (state.status == Status.failure) {
-            print('LoginPage - Error: ${state.errorMessage}');
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(state.errorMessage ?? 'Error al iniciar sesión'),
@@ -151,7 +143,6 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                       const SizedBox(height: 32),
                       
-                      // Botón con loading state
                       state.status == Status.loading
                           ? Center(
                               child: Container(

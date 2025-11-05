@@ -30,4 +30,15 @@ class UserRegister {
 
     );
   }
+    Map<String, dynamic> toJson() {
+    return {
+      'firstName': firstName,
+      'lastName': lastName,
+      'dni': dni,
+      'phoneNumber': phoneNumber,
+      'email': email,
+      'passwordHash': password,
+      'role': role,
+    };
+  }
 }

@@ -9,8 +9,9 @@ import 'package:workstation_flutter/core/constants/api_constants.dart';
 class AuthService {
   Future<UserLogin> login(String email, String password) async {
     try {
-      final Uri uri = Uri.parse(WorkstationApiConstants.baseUrl)
-          .replace(path: WorkstationApiConstants.loginEndpoint);
+      final Uri uri = Uri.parse(
+        WorkstationApiConstants.baseUrl,
+      ).replace(path: WorkstationApiConstants.loginEndpoint);
 
       final http.Response response = await http.post(
         uri,
@@ -21,13 +22,11 @@ class AuthService {
       if (response.statusCode == HttpStatus.ok) {
         final body = response.body;
 
-        // Si la respuesta es un string plano (JWT), lo tratamos como tal
         if (body.startsWith('"') && body.endsWith('"')) {
           final token = body.replaceAll('"', '');
           return UserLogin(token: token);
         }
 
-        // Si la respuesta es un JSON, la decodificamos normalmente
         final json = jsonDecode(body);
         return UserLogin.fromJson(json);
       }
@@ -48,8 +47,9 @@ class AuthService {
     int role,
   ) async {
     try {
-      final Uri uri = Uri.parse(WorkstationApiConstants.baseUrl)
-          .replace(path: WorkstationApiConstants.registerEndpoint);
+      final Uri uri = Uri.parse(
+        WorkstationApiConstants.baseUrl,
+      ).replace(path: WorkstationApiConstants.registerEndpoint);
 
       final http.Response response = await http.post(
         uri,
@@ -60,17 +60,67 @@ class AuthService {
           'dni': dni,
           'phoneNumber': phoneNumber,
           'email': email,
-          'password': password,
+          'passwordHash': password,
           'role': role,
         }),
       );
 
-      if (response.statusCode == HttpStatus.ok) {
-        final json = jsonDecode(response.body);
-        return UserRegister.fromJson(json);
+      print('Register Status Code: ${response.statusCode}');
+      print('Register Response Body: ${response.body}');
+      print('Register Response Type: ${response.body.runtimeType}');
+
+      if (response.statusCode == HttpStatus.ok ||
+          response.statusCode == HttpStatus.created) {
+        final body = response.body;
+
+        // ✅ Manejo similar al login: verificar si es un string simple
+        if (body.startsWith('"') && body.endsWith('"')) {
+          // El backend devuelve un string (probablemente un mensaje o token)
+          final message = body.replaceAll('"', '');
+          // Crear un UserRegister con datos del registro exitoso
+          return UserRegister(
+            firstName: firstName,
+            lastName: lastName,
+            dni: dni,
+            phoneNumber: phoneNumber,
+            email: email,
+            password: password,
+            role: role,
+          );
+        }
+
+        // Si es un JSON válido, parsearlo
+        try {
+          final json = jsonDecode(body);
+          return UserRegister.fromJson(json);
+        } catch (e) {
+          // Si falla el parseo pero el registro fue exitoso (200/201)
+          print('No se pudo parsear JSON, pero registro exitoso: $e');
+          return UserRegister(
+            firstName: firstName,
+            lastName: lastName,
+            dni: dni,
+            phoneNumber: phoneNumber,
+            email: email,
+            password: password,
+            role: role,
+          );
+        }
       }
 
-      throw HttpException('Unexpected status code: ${response.statusCode}');
+      // Manejo de errores más específico
+      if (response.statusCode == HttpStatus.badRequest) {
+        final errorBody = response.body;
+        throw HttpException('Bad Request (400): $errorBody');
+      }
+
+      if (response.statusCode == HttpStatus.conflict) {
+        throw HttpException('Conflict (409): El usuario ya existe');
+      }
+
+      throw HttpException(
+        'Unexpected status code: ${response.statusCode}, Body: ${response.body}',
+      );
     } catch (e) {
       throw Exception('Unexpected error while fetching data: $e');
     }

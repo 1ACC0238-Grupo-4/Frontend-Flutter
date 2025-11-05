@@ -22,7 +22,6 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
   }
 
   FutureOr<void> _onLogin(Login event, Emitter<LoginState> emit) async {
-    // Validaciones previas
     if (state.email.isEmpty || state.password.isEmpty) {
       emit(state.copyWith(
         status: Status.failure,
@@ -37,38 +36,29 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       await service.login(state.email, state.password);
       emit(state.copyWith(status: Status.success));
     } on SocketException catch (e) {
-      // Error de conexión a internet
-      print('SocketException: $e');
       emit(state.copyWith(
         status: Status.failure,
         errorMessage: 'No hay conexión a internet. Verifica tu red.',
       ));
     } on TimeoutException catch (e) {
-      // Timeout
-      print('TimeoutException: $e');
+ 
       emit(state.copyWith(
         status: Status.failure,
         errorMessage: 'La solicitud tardó demasiado. Intenta nuevamente.',
       ));
     } on FormatException catch (e) {
-      // Error de formato (JSON inválido, etc.)
-      print('FormatException: $e');
+
       emit(state.copyWith(
         status: Status.failure,
         errorMessage: 'Error en el formato de datos. Contacta soporte.',
       ));
     } on HttpException catch (e) {
-      // Error HTTP
-      print('HttpException: $e');
       emit(state.copyWith(
         status: Status.failure,
         errorMessage: 'Error del servidor: ${e.message}',
       ));
     } catch (e) {
-      // Error genérico o específico del servicio
-      print('Error general: $e');
       
-      // Manejo de errores específicos por mensaje
       String errorMessage = _parseErrorMessage(e.toString());
       
       emit(state.copyWith(
@@ -78,9 +68,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     }
   }
 
-  /// Parse error message from exception
   String _parseErrorMessage(String error) {
-    // Mensajes comunes de error del backend
     if (error.contains('401') || error.contains('Unauthorized')) {
       return 'Credenciales incorrectas. Verifica tu email y contraseña.';
     }
