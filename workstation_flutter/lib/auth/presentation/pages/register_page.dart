@@ -158,7 +158,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                         borderRadius: BorderRadius.circular(8),
                                       ),
                                       child: Text(
-                                        'Arrendador',
+                                        'Buscador',
                                         textAlign: TextAlign.center,
                                         style: TextStyle(
                                           color: state.role == 1
@@ -187,7 +187,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                         borderRadius: BorderRadius.circular(8),
                                       ),
                                       child: Text(
-                                        'Buscador',
+                                        'Arrendador',
                                         textAlign: TextAlign.center,
                                         style: TextStyle(
                                           color: state.role == 2
