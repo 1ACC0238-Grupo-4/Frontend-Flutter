@@ -18,38 +18,70 @@ class Office {
     required this.available,
     required this.services,
   });
-}
 
-enum OfficeService {
-  wifi,
-  coffee,
-  kitchen,
-  airConditioning,
-  projector,
-  whiteboard,
-  parking,
-  printer,
-}
+  factory Office.fromJson(Map<String, dynamic> json) {
+    return Office(
+      id: json['id'],
+      location: json['location'] ?? '',
+      description: json['description'],
+      imageUrl: json['imageUrl'],
+      capacity: json['capacity'] ?? 0,
+      costPerDay: json['costPerDay'] ?? 0,
+      available: json['available'] ?? false,
+      services: _parseServices(json['services']),
+    );
+  }
 
-extension OfficeServiceExtension on OfficeService {
-  String get displayName {
-    switch (this) {
-      case OfficeService.wifi:
-        return 'WiFi';
-      case OfficeService.coffee:
-        return 'Café';
-      case OfficeService.kitchen:
-        return 'Cocina';
-      case OfficeService.airConditioning:
-        return 'Aire Acondicionado';
-      case OfficeService.projector:
-        return 'Proyector';
-      case OfficeService.whiteboard:
-        return 'Pizarra';
-      case OfficeService.parking:
-        return 'Estacionamiento';
-      case OfficeService.printer:
-        return 'Impresora';
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'location': location,
+      'description': description,
+      'imageUrl': imageUrl,
+      'capacity': capacity,
+      'costPerDay': costPerDay,
+      'available': available,
+      'services': services.map((s) => s.toJson()).toList(),
+    };
+  }
+
+  static List<OfficeService> _parseServices(dynamic servicesJson) {
+    if (servicesJson == null) return [];
+
+    if (servicesJson is List) {
+      return servicesJson
+          .map((service) => OfficeService.fromJson(service))
+          .toList();
     }
+
+    return [];
+  }
+}
+
+class OfficeService {
+  final String name;
+  final String description;
+  final int cost;
+
+  OfficeService({
+    required this.name,
+    required this.description,
+    required this.cost,
+  });
+
+  factory OfficeService.fromJson(Map<String, dynamic> json) {
+    return OfficeService(
+      name: json['name'] ?? '',
+      description: json['description'] ?? '',
+      cost: json['cost'] ?? 0,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'name': name,
+      'description': description,
+      'cost': cost,
+    };
   }
 }

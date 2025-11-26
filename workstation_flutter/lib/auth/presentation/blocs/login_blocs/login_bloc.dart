@@ -105,12 +105,10 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       return 'Contraseña incorrecta.';
     }
 
-    // Error personalizado de tu AuthService
     if (error.contains('Exception:')) {
       return error.replaceAll('Exception:', '').trim();
     }
     
-    // Error genérico
     return 'Error al iniciar sesión: ${error.length > 100 ? '${error.substring(0, 100)}...' : error}';
   }
 }

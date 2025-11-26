@@ -11,7 +11,6 @@ class ChatsPage extends StatefulWidget {
 
 class _ChatsPageState extends State<ChatsPage> {
 
-  // Mock data - En producción esto vendría de una API
   final List<Chat> _chats = [
     Chat(
       id: '1',

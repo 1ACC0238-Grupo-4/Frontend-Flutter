@@ -437,14 +437,9 @@ class OfficeDetailPage extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
-            _getServiceIcon(service),
-            size: 20,
-            color: Colors.black87,
-          ),
           const SizedBox(width: 8),
           Text(
-            service.displayName,
+            service.name,
             style: const TextStyle(
               fontSize: 14,
               color: Colors.black87,
@@ -455,26 +450,6 @@ class OfficeDetailPage extends StatelessWidget {
     );
   }
 
-  IconData _getServiceIcon(OfficeService service) {
-    switch (service) {
-      case OfficeService.wifi:
-        return Icons.wifi;
-      case OfficeService.coffee:
-        return Icons.coffee;
-      case OfficeService.kitchen:
-        return Icons.kitchen;
-      case OfficeService.airConditioning:
-        return Icons.ac_unit;
-      case OfficeService.projector:
-        return Icons.videocam;
-      case OfficeService.whiteboard:
-        return Icons.border_color;
-      case OfficeService.parking:
-        return Icons.local_parking;
-      case OfficeService.printer:
-        return Icons.print;
-    }
-  }
 
   Widget _buildPlaceholderImage() {
     return Container(

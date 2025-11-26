@@ -9,12 +9,11 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
 
-  @override
+  @override 
   Widget build(BuildContext context) {
     return SafeArea(
         child: Column(
           children: [
-            // Header with wave decoration
             Container(
               height: 120,
               decoration: BoxDecoration(

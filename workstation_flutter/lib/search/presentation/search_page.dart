@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:workstation_flutter/core/enums/status.dart';
 import 'package:workstation_flutter/offices/domain/office.dart';
+import 'package:workstation_flutter/offices/presentation/office_detail_page.dart';
 import 'package:workstation_flutter/offices/presentation/widgets/office_card.dart';
-
+import 'package:workstation_flutter/search/presentation/blocs/search_bloc.dart';
+import 'package:workstation_flutter/search/presentation/blocs/search_event.dart';
+import 'package:workstation_flutter/search/presentation/blocs/search_state.dart';
 
 class SearchPage extends StatefulWidget {
   const SearchPage({super.key});
@@ -12,151 +17,15 @@ class SearchPage extends StatefulWidget {
 
 class _SearchPageState extends State<SearchPage> {
   final TextEditingController _searchController = TextEditingController();
-
   RangeValues _capacityRange = const RangeValues(1, 50);
-  final Set<OfficeService> _selectedServices = {};
+  RangeValues _priceRange = const RangeValues(0, 1000);
+  bool _onlyAvailable = false;
 
-  final List<Office> _allOffices = [
-    Office(
-      id: '1',
-      location: 'Oficina Ejecutiva - Miraflores',
-      description: 'Oficina privada con vista al mar',
-      imageUrl:
-          'https://images.unsplash.com/photo-1497366216548-37526070297c?w=800',
-      capacity: 1,
-      costPerDay: 150,
-      available: true,
-      services: [
-        OfficeService.wifi,
-        OfficeService.coffee,
-        OfficeService.airConditioning,
-      ],
-    ),
-    Office(
-      id: '2',
-      location: 'Sala de Reuniones - San Isidro',
-      description: 'Espacio colaborativo moderno',
-      imageUrl:
-          'https://images.unsplash.com/photo-1497366811353-6870744d04b2?w=800',
-      capacity: 8,
-      costPerDay: 300,
-      available: true,
-      services: [
-        OfficeService.wifi,
-        OfficeService.projector,
-        OfficeService.whiteboard,
-      ],
-    ),
-    Office(
-      id: '3',
-      location: 'Sala Conferencias - Surco',
-      description: 'Sala grande para presentaciones',
-      imageUrl:
-          'https://images.unsplash.com/photo-1497366754035-f200968a6e72?w=800',
-      capacity: 20,
-      costPerDay: 500,
-      available: true,
-      services: [
-        OfficeService.wifi,
-        OfficeService.projector,
-        OfficeService.airConditioning,
-        OfficeService.coffee,
-      ],
-    ),
-    Office(
-      id: '4',
-      location: 'Oficina Compartida - Barranco',
-      description: 'Espacio de coworking creativo',
-      imageUrl:
-          'https://images.unsplash.com/photo-1497366412874-3415097a27e7?w=800',
-      capacity: 15,
-      costPerDay: 250,
-      available: true,
-      services: [
-        OfficeService.wifi,
-        OfficeService.kitchen,
-        OfficeService.coffee,
-      ],
-    ),
-    Office(
-      id: '5',
-      location: 'Oficina Premium - La Molina',
-      description: 'Oficina de lujo totalmente equipada',
-      imageUrl:
-          'https://images.unsplash.com/photo-1497366858526-0766cadbe8fa?w=800',
-      capacity: 4,
-      costPerDay: 350,
-      available: true,
-      services: [
-        OfficeService.wifi,
-        OfficeService.coffee,
-        OfficeService.airConditioning,
-        OfficeService.printer,
-      ],
-    ),
-    Office(
-      id: '6',
-      location: 'Coworking Space - Lince',
-      description: 'Espacio abierto y luminoso',
-      imageUrl:
-          'https://images.unsplash.com/photo-1497215728101-856f4ea42174?w=800',
-      capacity: 30,
-      costPerDay: 100,
-      available: true,
-      services: [
-        OfficeService.wifi,
-        OfficeService.kitchen,
-        OfficeService.parking,
-      ],
-    ),
-    Office(
-      id: '7',
-      location: 'Sala Ejecutiva - Jesús María',
-      description: 'Sala de juntas elegante',
-      imageUrl:
-          'https://images.unsplash.com/photo-1497366216548-37526070297c?w=800',
-      capacity: 12,
-      costPerDay: 400,
-      available: true,
-      services: [
-        OfficeService.wifi,
-        OfficeService.projector,
-        OfficeService.whiteboard,
-        OfficeService.coffee,
-      ],
-    ),
-  ];
-
-  List<Office> get _filteredOffices {
-    return _allOffices.where((office) {
-      // Filtro por capacidad
-      if (office.capacity < _capacityRange.start ||
-          office.capacity > _capacityRange.end) {
-        return false;
-      }
-
-      // Filtro por servicios
-      if (_selectedServices.isNotEmpty) {
-        if (!_selectedServices.every(
-          (service) => office.services.contains(service),
-        )) {
-          return false;
-        }
-      }
-
-      // Filtro por búsqueda de texto
-      if (_searchController.text.isNotEmpty) {
-        return office.location.toLowerCase().contains(
-              _searchController.text.toLowerCase(),
-            ) ||
-            (office.description?.toLowerCase().contains(
-                  _searchController.text.toLowerCase(),
-                ) ??
-                false);
-      }
-
-      return true;
-    }).toList();
+  @override
+  void initState() {
+    super.initState();
+    // Cargar todas las oficinas al iniciar
+    context.read<SearchBloc>().add(LoadAllOffices());
   }
 
   void _showFilterDialog() {
@@ -172,52 +41,67 @@ class _SearchPageState extends State<SearchPage> {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    // Filtro de disponibilidad
+                    CheckboxListTile(
+                      title: const Text('Solo oficinas disponibles'),
+                      value: _onlyAvailable,
+                      onChanged: (bool? value) {
+                        setDialogState(() {
+                          _onlyAvailable = value ?? false;
+                        });
+                      },
+                      controlAffinity: ListTileControlAffinity.leading,
+                      contentPadding: EdgeInsets.zero,
+                    ),
+                    const SizedBox(height: 16),
+                    
+                    // Filtro de capacidad
                     const Text(
-                      'Rango de aforo',
+                      'Capacidad mínima',
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
-                    RangeSlider(
-                      values: _capacityRange,
+                    Slider(
+                      value: _capacityRange.start,
                       min: 1,
                       max: 50,
                       divisions: 49,
-                      labels: RangeLabels(
-                        _capacityRange.start.round().toString(),
-                        _capacityRange.end.round().toString(),
-                      ),
-                      onChanged: (RangeValues values) {
+                      label: _capacityRange.start.round().toString(),
+                      onChanged: (double value) {
                         setDialogState(() {
-                          _capacityRange = values;
+                          _capacityRange = RangeValues(value, _capacityRange.end);
                         });
                       },
                     ),
                     Text(
-                      'De ${_capacityRange.start.round()} a ${_capacityRange.end.round()} personas',
+                      'Mínimo: ${_capacityRange.start.round()} personas',
                       style: const TextStyle(fontSize: 12),
                     ),
                     const SizedBox(height: 16),
+                    
+                    // Filtro de precio
                     const Text(
-                      'Servicios',
+                      'Rango de precio (por día)',
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
-                    const SizedBox(height: 8),
-                    ...OfficeService.values.map((service) {
-                      return CheckboxListTile(
-                        title: Text(service.displayName),
-                        value: _selectedServices.contains(service),
-                        onChanged: (bool? value) {
-                          setDialogState(() {
-                            if (value == true) {
-                              _selectedServices.add(service);
-                            } else {
-                              _selectedServices.remove(service);
-                            }
-                          });
-                        },
-                        controlAffinity: ListTileControlAffinity.leading,
-                        contentPadding: EdgeInsets.zero,
-                      );
-                    }),
+                    RangeSlider(
+                      values: _priceRange,
+                      min: 0,
+                      max: 1000,
+                      divisions: 20,
+                      labels: RangeLabels(
+                        'S/ ${_priceRange.start.round()}',
+                        'S/ ${_priceRange.end.round()}',
+                      ),
+                      onChanged: (RangeValues values) {
+                        setDialogState(() {
+                          _priceRange = values;
+                        });
+                      },
+                    ),
+                    Text(
+                      'De S/ ${_priceRange.start.round()} a S/ ${_priceRange.end.round()}',
+                      style: const TextStyle(fontSize: 12),
+                    ),
                   ],
                 ),
               ),
@@ -226,14 +110,37 @@ class _SearchPageState extends State<SearchPage> {
                   onPressed: () {
                     setDialogState(() {
                       _capacityRange = const RangeValues(1, 50);
-                      _selectedServices.clear();
+                      _priceRange = const RangeValues(0, 1000);
+                      _onlyAvailable = false;
                     });
+                    // Resetear búsqueda
+                    context.read<SearchBloc>().add(ResetSearch());
                   },
                   child: const Text('Limpiar'),
                 ),
                 ElevatedButton(
                   onPressed: () {
-                    setState(() {}); // Actualizar la lista principal
+                    // Aplicar filtros
+                    final bloc = context.read<SearchBloc>();
+                    
+                    bloc.add(OnMinCapacityChanged(
+                      minCapacity: _capacityRange.start.round(),
+                    ));
+                    
+                    bloc.add(OnMinPriceChanged(
+                      minPrice: _priceRange.start.round(),
+                    ));
+                    
+                    bloc.add(OnMaxPriceChanged(
+                      maxPrice: _priceRange.end.round(),
+                    ));
+                    
+                    bloc.add(OnAvailabilityChanged(
+                      onlyAvailable: _onlyAvailable,
+                    ));
+                    
+                    bloc.add(ApplyFilters());
+                    
                     Navigator.pop(context);
                   },
                   child: const Text('Aplicar'),
@@ -246,6 +153,30 @@ class _SearchPageState extends State<SearchPage> {
     );
   }
 
+  void _searchByLocation() {
+    final location = _searchController.text.trim();
+    if (location.isNotEmpty) {
+      context.read<SearchBloc>()
+        ..add(OnLocationIdChanged(locationId: location))
+        ..add(SearchOfficesByLocation());
+    }
+  }
+
+  void _navigateToOfficeDetail(Office office) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => BlocProvider.value(
+          value: context.read<SearchBloc>(),
+          child: OfficeDetailPage(
+            office: office,
+            isReserved: false,
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   void dispose() {
     _searchController.dispose();
@@ -255,97 +186,188 @@ class _SearchPageState extends State<SearchPage> {
   @override
   Widget build(BuildContext context) {
     return SafeArea(
-        child: Column(
-          children: [
-            // Header with wave decoration
-            Container(
-              height: 80,
-              decoration: const BoxDecoration(
-                color: Color(0xFF8BC34A),
-                borderRadius: BorderRadius.only(
-                  bottomLeft: Radius.elliptical(200, 30),
-                  bottomRight: Radius.elliptical(200, 30),
-                ),
+      child: Column(
+        children: [
+          Container(
+            height: 80,
+            decoration: const BoxDecoration(
+              color: Color(0xFF8BC34A),
+              borderRadius: BorderRadius.only(
+                bottomLeft: Radius.elliptical(200, 30),
+                bottomRight: Radius.elliptical(200, 30),
               ),
-              child: const Center(
-                child: Text(
-                  'Búsqueda',
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black87,
-                  ),
+            ),
+            child: const Center(
+              child: Text(
+                'Búsqueda',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
                 ),
               ),
             ),
-            const SizedBox(height: 24),
-            // Search bar
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: TextField(
-                controller: _searchController,
-                onChanged: (value) {
-                  setState(() {});
-                },
-                decoration: InputDecoration(
-                  hintText: 'Busca tu oficina',
-                  hintStyle: TextStyle(color: Colors.black.withOpacity(0.6)),
-                  filled: true,
-                  fillColor: const Color(0xFFE8F48C),
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 20,
-                    vertical: 16,
-                  ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(25),
-                    borderSide: BorderSide.none,
-                  ),
-                  suffixIcon: IconButton(
-                    icon: const Icon(Icons.filter_list, color: Colors.black87),
-                    onPressed: _showFilterDialog,
-                  ),
+          ),
+          const SizedBox(height: 24),
+          
+          // Search bar
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: TextField(
+              controller: _searchController,
+              onSubmitted: (_) => _searchByLocation(),
+              decoration: InputDecoration(
+                hintText: 'Busca tu oficina por ubicación',
+                hintStyle: TextStyle(color: Colors.black.withOpacity(0.6)),
+                filled: true,
+                fillColor: const Color(0xFFE8F48C),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 16,
+                ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(25),
+                  borderSide: BorderSide.none,
+                ),
+                suffixIcon: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.search, color: Colors.black87),
+                      onPressed: _searchByLocation,
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.filter_list, color: Colors.black87),
+                      onPressed: _showFilterDialog,
+                    ),
+                  ],
                 ),
               ),
             ),
-            const SizedBox(height: 16),
-            // "Oficinas recomendadas" header
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.0),
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  'Oficinas recomendadas',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black87,
-                  ),
+          ),
+          const SizedBox(height: 16),
+          
+          // "Oficinas recomendadas" header
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16.0),
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                'Oficinas recomendadas',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
                 ),
               ),
             ),
-            const SizedBox(height: 8),
-            // Office list
-            Expanded(
-              child: ListView.builder(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                itemCount: _filteredOffices.length,
-                itemBuilder: (context, index) {
-                  return OfficeCard(
-                    office: _filteredOffices[index],
-                    showButton: true,
-                    isReserved: false,
-                    
-                    onTap: () {
-                      print(
-                        'Tapped on office: ${_filteredOffices[index].location}',
-                      );
-                    },
+          ),
+          const SizedBox(height: 8),
+          
+          // Office list with BLoC
+          Expanded(
+            child: BlocBuilder<SearchBloc, SearchState>(
+              builder: (context, state) {
+                // Estado de carga
+                if (state.status == Status.loading) {
+                  return const Center(
+                    child: CircularProgressIndicator(
+                      color: Color(0xFF8BC34A),
+                    ),
                   );
-                },
-              ),
+                }
+                
+                // Estado de error
+                if (state.status == Status.failure) {
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(
+                          Icons.error_outline,
+                          size: 64,
+                          color: Colors.red,
+                        ),
+                        const SizedBox(height: 16),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 32.0),
+                          child: Text(
+                            state.errorMessage ?? 'Error al cargar oficinas',
+                            style: const TextStyle(fontSize: 16),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        ElevatedButton(
+                          onPressed: () {
+                            context.read<SearchBloc>().add(LoadAllOffices());
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF8BC34A),
+                            foregroundColor: Colors.black87,
+                          ),
+                          child: const Text('Reintentar'),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+                
+                // Lista vacía
+                if (state.offices.isEmpty) {
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(
+                          Icons.search_off,
+                          size: 64,
+                          color: Colors.grey,
+                        ),
+                        const SizedBox(height: 16),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 32.0),
+                          child: Text(
+                            state.errorMessage ?? 'No se encontraron oficinas',
+                            style: const TextStyle(fontSize: 16),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        ElevatedButton(
+                          onPressed: () {
+                            _searchController.clear();
+                            context.read<SearchBloc>().add(ResetSearch());
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF8BC34A),
+                            foregroundColor: Colors.black87,
+                          ),
+                          child: const Text('Limpiar filtros'),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+                
+                // Lista de oficinas
+                return ListView.builder(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  itemCount: state.offices.length,
+                  itemBuilder: (context, index) {
+                    return OfficeCard(
+                      office: state.offices[index],
+                      showButton: true,
+                      isReserved: false,
+                      onTap: () => _navigateToOfficeDetail(state.offices[index]),
+                    );
+                  },
+                );
+              },
             ),
-          ],
-        ),
-      );
+          ),
+        ],
+      ),
+    );
   }
 }

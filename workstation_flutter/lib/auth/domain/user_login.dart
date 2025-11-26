@@ -1,26 +1,28 @@
 class UserLogin {
   final String? email;
   final String? password;
-  final String token;
-
+  final String? token;
+  
   UserLogin({
     this.email,
     this.password,
-    required this.token,
+    this.token, 
   });
-
+  
   factory UserLogin.fromJson(dynamic json) {
-    if (json is String) {
-      return UserLogin(token: json);
-    }
-
     return UserLogin(
       email: json['email'],
       password: json['passwordHash'],
-      token: json['token'] ?? '',
+      token: json['token'],
     );
   }
-
+  
+  factory UserLogin.fromToken(String token) {
+    return UserLogin(
+      token: token,
+    );
+  }
+  
   Map<String, dynamic> toJson() {
     return {
       'email': email,

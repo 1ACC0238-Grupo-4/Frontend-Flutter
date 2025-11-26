@@ -5,38 +5,39 @@ import 'package:http/http.dart' as http;
 import 'package:workstation_flutter/auth/domain/user_login.dart';
 import 'package:workstation_flutter/auth/domain/user_register.dart';
 import 'package:workstation_flutter/core/constants/api_constants.dart';
+import 'package:workstation_flutter/core/storage/token_storage.dart';
 
 class AuthService {
   Future<UserLogin> login(String email, String password) async {
-    try {
-      final Uri uri = Uri.parse(
-        WorkstationApiConstants.baseUrl,
-      ).replace(path: WorkstationApiConstants.loginEndpoint);
-
-      final http.Response response = await http.post(
-        uri,
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'email': email, 'passwordHash': password}),
-      );
-
-      if (response.statusCode == HttpStatus.ok) {
-        final body = response.body;
-
-        if (body.startsWith('"') && body.endsWith('"')) {
-          final token = body.replaceAll('"', '');
-          return UserLogin(token: token);
-        }
-
-        final json = jsonDecode(body);
-        return UserLogin.fromJson(json);
+  try {
+    final Uri uri = Uri.parse(
+      WorkstationApiConstants.baseUrl,
+    ).replace(path: WorkstationApiConstants.loginEndpoint);
+    
+    final http.Response response = await http.post(
+      uri,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'email': email, 'passwordHash': password}),
+    );
+    
+    if (response.statusCode == HttpStatus.ok) {
+      final decoded = jsonDecode(response.body);
+      
+      if (decoded is String) {
+        await TokenStorage().save(decoded);
+        
+        return UserLogin.fromToken(decoded);
       }
-
-      throw HttpException('Unexpected status code: ${response.statusCode}');
-    } catch (e) {
-      throw Exception('Unexpected error while fetching data: $e');
+      
+      
+      throw Exception('Formato de respuesta inesperado');
     }
+    
+    throw HttpException('Unexpected status code: ${response.statusCode}');
+  } catch (e) {
+    throw Exception('Unexpected error while fetching data: $e');
   }
-
+}
   Future<UserRegister> register(
     String firstName,
     String lastName,
@@ -65,19 +66,12 @@ class AuthService {
         }),
       );
 
-      print('Register Status Code: ${response.statusCode}');
-      print('Register Response Body: ${response.body}');
-      print('Register Response Type: ${response.body.runtimeType}');
-
       if (response.statusCode == HttpStatus.ok ||
           response.statusCode == HttpStatus.created) {
         final body = response.body;
 
-        // ✅ Manejo similar al login: verificar si es un string simple
         if (body.startsWith('"') && body.endsWith('"')) {
-          // El backend devuelve un string (probablemente un mensaje o token)
           final message = body.replaceAll('"', '');
-          // Crear un UserRegister con datos del registro exitoso
           return UserRegister(
             firstName: firstName,
             lastName: lastName,
@@ -89,13 +83,10 @@ class AuthService {
           );
         }
 
-        // Si es un JSON válido, parsearlo
         try {
           final json = jsonDecode(body);
           return UserRegister.fromJson(json);
         } catch (e) {
-          // Si falla el parseo pero el registro fue exitoso (200/201)
-          print('No se pudo parsear JSON, pero registro exitoso: $e');
           return UserRegister(
             firstName: firstName,
             lastName: lastName,
@@ -108,7 +99,6 @@ class AuthService {
         }
       }
 
-      // Manejo de errores más específico
       if (response.statusCode == HttpStatus.badRequest) {
         final errorBody = response.body;
         throw HttpException('Bad Request (400): $errorBody');
