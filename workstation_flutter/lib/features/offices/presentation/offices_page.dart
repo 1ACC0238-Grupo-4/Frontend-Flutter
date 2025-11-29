@@ -93,9 +93,6 @@ class _OfficesPageState extends State<OfficesPage> {
 
                     return OfficeCard(
                       office: office,
-                      onTap: () {
-                        print('Tapped: ${office.location}');
-                      },
                         userId: _userId!, 
                     );
                   },

@@ -22,7 +22,6 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
     on<GetOfficeById>(_onGetOfficeById);
     on<ResetSearch>(_onResetSearch);
     on<LoadUnavailableOffices>(_onLoadUnavailableOffices);
-    on<UpdateOfficeAvailability>(_onUpdateOfficeAvailability);
   }
 
   Future<void> _onLoadAllOffices(
@@ -100,9 +99,12 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
   ) async {
     emit(state.copyWith(status: Status.loading));
     try {
-      final offices = await officeService.getAvailableOffices();
+      List<Office> _offices = await officeService.getAllOffices();
+      final available = _offices
+          .where((office) => office.available == true)
+          .toList();
 
-      if (offices.isEmpty) {
+      if (available.isEmpty) {
         emit(
           state.copyWith(
             status: Status.success,
@@ -113,7 +115,7 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
         return;
       }
 
-      emit(state.copyWith(status: Status.success, offices: offices));
+      emit(state.copyWith(status: Status.success, offices: available));
     } catch (e) {
       emit(state.copyWith(status: Status.failure, errorMessage: e.toString()));
     }
@@ -250,48 +252,6 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
       );
     } catch (e) {
       emit(state.copyWith(status: Status.failure, errorMessage: e.toString()));
-    }
-  }
-
-  // NUEVO HANDLER
-  Future<void> _onUpdateOfficeAvailability(
-    UpdateOfficeAvailability event,
-    Emitter<SearchState> emit,
-  ) async {
-    emit(state.copyWith(updateStatus: Status.loading));
-    
-    try {
-      print('🏢 ====== ACTUALIZANDO DISPONIBILIDAD DE OFICINA ======');
-      print('🆔 Office ID: ${event.officeId}');
-      print('✅ Nueva disponibilidad: ${event.available}');
-      
-      // Primero obtener la oficina actual
-      final office = await officeService.getOfficeById(event.officeId);
-      
-      print('📦 Oficina obtenida:');
-      print('   - Location: ${office.location}');
-      print('   - Available actual: ${office.available}');
-      
-      // Actualizar la disponibilidad
-      final updatedOffice = await officeService.updateOfficeAvailability(
-        office,
-        event.available,
-      );
-      
-      print('✅ Oficina actualizada exitosamente');
-      print('   - Available nuevo: ${updatedOffice.available}');
-      print('=========================================================\n');
-      
-      emit(state.copyWith(
-        updateStatus: Status.success,
-        selectedOffice: updatedOffice,
-      ));
-    } catch (e) {
-      print('❌ Error al actualizar disponibilidad de oficina: $e');
-      emit(state.copyWith(
-        updateStatus: Status.failure,
-        errorMessage: 'Error al actualizar oficina: $e',
-      ));
     }
   }
 }

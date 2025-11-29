@@ -11,7 +11,6 @@ class SearchState {
   final int? maxPrice;
   final bool onlyAvailable;
   final String? errorMessage;
-  final Status updateStatus; // Estado específico para actualización
 
   const SearchState({
     this.status = Status.initial,
@@ -23,7 +22,6 @@ class SearchState {
     this.maxPrice,
     this.onlyAvailable = false,
     this.errorMessage,
-    this.updateStatus = Status.initial,
   });
 
   SearchState copyWith({
@@ -36,7 +34,6 @@ class SearchState {
     int? maxPrice,
     bool? onlyAvailable,
     String? errorMessage,
-    Status? updateStatus,
   }) {
     return SearchState(
       status: status ?? this.status,
@@ -48,7 +45,6 @@ class SearchState {
       maxPrice: maxPrice ?? this.maxPrice,
       onlyAvailable: onlyAvailable ?? this.onlyAvailable,
       errorMessage: errorMessage ?? this.errorMessage,
-      updateStatus: updateStatus ?? this.updateStatus,
     );
   }
 }

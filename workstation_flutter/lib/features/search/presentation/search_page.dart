@@ -27,7 +27,7 @@ class _SearchPageState extends State<SearchPage> {
   void initState() {
     super.initState();
     _loadUserId();
-    context.read<SearchBloc>().add(LoadAllOffices());
+    context.read<SearchBloc>().add(FilterAvailableOffices());
 
   }
 
@@ -169,7 +169,6 @@ class _SearchPageState extends State<SearchPage> {
 
 void _navigateToOfficeDetail(Office office) async {
   final authRepo = context.read<AuthRepository>();
-  final userId = await authRepo.getUserId();
 
   Navigator.push(
     context,

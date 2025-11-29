@@ -57,12 +57,3 @@ class LoadUnavailableOffices extends SearchEvent {
   
 }
 
-class UpdateOfficeAvailability extends SearchEvent {
-  final String officeId;
-  final bool available;
-  
-  const UpdateOfficeAvailability({
-    required this.officeId,
-    required this.available,
-  });
-}

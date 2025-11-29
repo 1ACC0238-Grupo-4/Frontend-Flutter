@@ -12,6 +12,7 @@ static final String addClauseEndpoint = "/api/workstation/Contracts/{contractId}
 static final String addSignatureEndpoint = "/api/workstation/Contracts/{contractId}/signatures";
 static final String activateContractEndpoint = "/api/workstation/Contracts/{contractId}/activate";
 static final String getContractEnpoint = "/api/workstation/Contracts/user/{userId}";
+static final String getAllActiveContractsEndpoint = "/api/workstation/Contracts/active";
 }
 
 // https://workstation-arqui-fgbngphuh0g4a8at.canadacentral-01.azurewebsites.net/api/workstation/User/login

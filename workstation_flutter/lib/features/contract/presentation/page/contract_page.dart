@@ -10,11 +10,6 @@ import 'package:workstation_flutter/features/contract/domain/signature.dart';
 import 'package:workstation_flutter/features/contract/presentation/blocs/contract_bloc.dart';
 import 'package:workstation_flutter/features/contract/presentation/blocs/contract_event.dart';
 import 'package:workstation_flutter/features/contract/presentation/blocs/contract_state.dart';
-import 'package:crypto/crypto.dart';
-import 'dart:convert';
-
-import 'package:workstation_flutter/features/search/presentation/blocs/search_bloc.dart';
-import 'package:workstation_flutter/features/search/presentation/blocs/search_event.dart';
 
 class CreateContractPage extends StatefulWidget {
   final String officeId;
@@ -246,149 +241,143 @@ class _CreateContractPageState extends State<CreateContractPage> {
   Future<void> _activateContract(String contractId) async {
     if (_isActivatingContract) return;
 
+    print('🎯 ====== INICIANDO ACTIVACIÓN DE CONTRATO ======');
+    print('📝 Contract ID: $contractId');
+    print('🏢 Office ID: ${widget.officeId}');
+
     setState(() {
       _isActivatingContract = true;
     });
 
+    print('✅ Estado _isActivatingContract cambiado a: true');
+
     final contractBloc = context.read<ContractBloc>();
     contractBloc.add(ActivateContract(contractId: contractId));
+
+    print('📤 Evento ActivateContract enviado al bloc');
+    print('================================================\n');
   }
 
-@override
-Widget build(BuildContext context) {
-  return Scaffold(
-    body: BlocConsumer<ContractBloc, ContractState>(
-      listener: (context, state) async {
-        // BLOQUE 1: Crear contrato
-        if (state.status == Status.success &&
-            state.selectedContract != null) {
-          if (!_isContractCreated) {
-            _createdContractId = state.selectedContract!.id;
-            _isContractCreated = true;
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Contrato creado exitosamente'),
-                backgroundColor: Colors.green,
-              ),
-            );
-            if (_clauses.isNotEmpty) {
-              await _addClausesToContract(_createdContractId!);
-              await Future.delayed(const Duration(milliseconds: 500));
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: BlocConsumer<ContractBloc, ContractState>(
+        listener: (context, state) async {
+          // BLOQUE 1: Crear contrato
+          if (state.status == Status.success &&
+              state.selectedContract != null) {
+            if (!_isContractCreated) {
+              _createdContractId = state.selectedContract!.id;
+              _isContractCreated = true;
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Contrato creado exitosamente'),
+                  backgroundColor: Colors.green,
+                ),
+              );
+              if (_clauses.isNotEmpty) {
+                await _addClausesToContract(_createdContractId!);
+                await Future.delayed(const Duration(milliseconds: 500));
+              }
+              await _addSignatureToContract(_createdContractId!);
+
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text(
+                    'Cláusulas y firma agregadas. Puede activar el contrato.',
+                  ),
+                  backgroundColor: Colors.green,
+                  duration: Duration(seconds: 3),
+                ),
+              );
             }
-            await _addSignatureToContract(_createdContractId!);
+          } // <--- CIERRA AQUÍ el if de crear contrato
 
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text(
-                  'Cláusulas y firma agregadas. Puede activar el contrato.',
-                ),
-                backgroundColor: Colors.green,
-                duration: Duration(seconds: 3),
-              ),
-            );
+          // BLOQUE 2: Error al activar (falta firma)
+          if (state.status == Status.failure && _isActivatingContract) {
+            print('❌ ====== ERROR AL ACTIVAR CONTRATO ======');
+            print('📄 Error message: ${state.errorMessage}');
+            print('==========================================\n');
+
+            setState(() {
+              _isActivatingContract = false;
+            });
+
+            if (state.errorMessage != null &&
+                (state.errorMessage!.contains('Ambas firmas son necesarias') ||
+                    state.errorMessage!.contains('firmas'))) {
+              print('⚠️ Motivo: Falta firma del propietario');
+              _showInfo(
+                '⏳ Propietario aún no ha firmado. '
+                'El contrato se activará cuando ambas partes hayan firmado.',
+              );
+            } else {
+              print('⚠️ Motivo: Otro error');
+              _showError('Error al activar contrato: ${state.errorMessage}');
+            }
           }
-        } // <--- CIERRA AQUÍ el if de crear contrato
-
-        // BLOQUE 2: Error al activar (falta firma)
-        if (state.status == Status.failure && _isActivatingContract) {
-          setState(() {
-            _isActivatingContract = false;
-          });
-
-          if (state.errorMessage != null &&
-              (state.errorMessage!.contains('Ambas firmas son necesarias') ||
-                  state.errorMessage!.contains('firmas'))) {
-            _showInfo(
-              '⏳ Propietario aún no ha firmado. '
-              'El contrato se activará cuando ambas partes hayan firmado.',
-            );
-          } else {
-            _showError('Error al activar contrato: ${state.errorMessage}');
-          }
-        }
-        if (state.hasAllSignatures == Status.success &&
-            _isActivatingContract) {
-          _showSuccess('¡Contrato activado exitosamente!');
-          
-          final searchBloc = context.read<SearchBloc>();
-          searchBloc.add(
-            UpdateOfficeAvailability(
-              officeId: widget.officeId,
-              available: false,
-            ),
-          );
-
-          await Future.delayed(const Duration(seconds: 1));
-
-          if (!mounted) return;
-
-          Navigator.of(context).pushAndRemoveUntil(
-            MaterialPageRoute(builder: (context) => const SplashPage()),
-            (route) => false,
-          );
-        }
-      },
-      builder: (context, state) {
-        return Stack(
-          children: [
-            Container(
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [Color(0xFF8BC34A), Color(0xFF4CAF50)],
+        },
+        builder: (context, state) {
+          return Stack(
+            children: [
+              Container(
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [Color(0xFF8BC34A), Color(0xFF4CAF50)],
+                  ),
                 ),
-              ),
-              child: SafeArea(
-                child: Column(
-                  children: [
-                    _buildHeader(),
-                    Expanded(
-                      child: Container(
-                        margin: const EdgeInsets.only(top: 20),
-                        decoration: const BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(30),
-                            topRight: Radius.circular(30),
+                child: SafeArea(
+                  child: Column(
+                    children: [
+                      _buildHeader(),
+                      Expanded(
+                        child: Container(
+                          margin: const EdgeInsets.only(top: 20),
+                          decoration: const BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(30),
+                              topRight: Radius.circular(30),
+                            ),
                           ),
-                        ),
-                        child: SingleChildScrollView(
-                          padding: const EdgeInsets.all(24.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              _buildDescriptionField(),
-                              const SizedBox(height: 24),
-                              _buildDateSelector(context),
-                              const SizedBox(height: 24),
-                              _buildClausesSection(),
-                              const SizedBox(height: 24),
-                              _buildSignatureField(),
-                              const SizedBox(height: 32),
-                              _buildActionButtons(state),
-                            ],
+                          child: SingleChildScrollView(
+                            padding: const EdgeInsets.all(24.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                _buildDescriptionField(),
+                                const SizedBox(height: 24),
+                                _buildDateSelector(context),
+                                const SizedBox(height: 24),
+                                _buildClausesSection(),
+                                const SizedBox(height: 24),
+                                _buildSignatureField(),
+                                const SizedBox(height: 32),
+                                _buildActionButtons(state),
+                              ],
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
-            ),
-            if (state.status == Status.loading)
-              Container(
-                color: Colors.black54,
-                child: const Center(
-                  child: CircularProgressIndicator(color: Color(0xFF8BC34A)),
+              if (state.status == Status.loading)
+                Container(
+                  color: Colors.black54,
+                  child: const Center(
+                    child: CircularProgressIndicator(color: Color(0xFF8BC34A)),
+                  ),
                 ),
-              ),
-          ],
-        );
-      },
-    ),
-  );
-}
+            ],
+          );
+        },
+      ),
+    );
+  }
 
   Widget _buildHeader() {
     return Container(
