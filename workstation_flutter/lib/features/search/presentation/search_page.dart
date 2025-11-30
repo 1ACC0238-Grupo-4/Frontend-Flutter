@@ -11,7 +11,7 @@ import 'package:workstation_flutter/features/search/presentation/blocs/search_st
 
 class SearchPage extends StatefulWidget {
   const SearchPage({super.key});
-  
+
   @override
   State<SearchPage> createState() => _SearchPageState();
 }
@@ -28,10 +28,9 @@ class _SearchPageState extends State<SearchPage> {
     super.initState();
     _loadUserId();
     context.read<SearchBloc>().add(FilterAvailableOffices());
-
   }
 
-    Future<void> _loadUserId() async {
+  Future<void> _loadUserId() async {
     final repo = context.read<AuthRepository>();
     final userId = await repo.getUserId();
 
@@ -63,7 +62,7 @@ class _SearchPageState extends State<SearchPage> {
                       contentPadding: EdgeInsets.zero,
                     ),
                     const SizedBox(height: 16),
-                    
+
                     const Text(
                       'Capacidad mínima',
                       style: TextStyle(fontWeight: FontWeight.bold),
@@ -76,7 +75,10 @@ class _SearchPageState extends State<SearchPage> {
                       label: _capacityRange.start.round().toString(),
                       onChanged: (double value) {
                         setDialogState(() {
-                          _capacityRange = RangeValues(value, _capacityRange.end);
+                          _capacityRange = RangeValues(
+                            value,
+                            _capacityRange.end,
+                          );
                         });
                       },
                     ),
@@ -85,7 +87,7 @@ class _SearchPageState extends State<SearchPage> {
                       style: const TextStyle(fontSize: 12),
                     ),
                     const SizedBox(height: 16),
-                    
+
                     const Text(
                       'Rango de precio (por día)',
                       style: TextStyle(fontWeight: FontWeight.bold),
@@ -127,25 +129,27 @@ class _SearchPageState extends State<SearchPage> {
                 ElevatedButton(
                   onPressed: () {
                     final bloc = context.read<SearchBloc>();
-                    
-                    bloc.add(OnMinCapacityChanged(
-                      minCapacity: _capacityRange.start.round(),
-                    ));
-                    
-                    bloc.add(OnMinPriceChanged(
-                      minPrice: _priceRange.start.round(),
-                    ));
-                    
-                    bloc.add(OnMaxPriceChanged(
-                      maxPrice: _priceRange.end.round(),
-                    ));
-                    
-                    bloc.add(OnAvailabilityChanged(
-                      onlyAvailable: _onlyAvailable,
-                    ));
-                    
+
+                    bloc.add(
+                      OnMinCapacityChanged(
+                        minCapacity: _capacityRange.start.round(),
+                      ),
+                    );
+
+                    bloc.add(
+                      OnMinPriceChanged(minPrice: _priceRange.start.round()),
+                    );
+
+                    bloc.add(
+                      OnMaxPriceChanged(maxPrice: _priceRange.end.round()),
+                    );
+
+                    bloc.add(
+                      OnAvailabilityChanged(onlyAvailable: _onlyAvailable),
+                    );
+
                     bloc.add(ApplyFilters());
-                    
+
                     Navigator.pop(context);
                   },
                   child: const Text('Aplicar'),
@@ -167,24 +171,23 @@ class _SearchPageState extends State<SearchPage> {
     }
   }
 
-void _navigateToOfficeDetail(Office office) async {
-  final authRepo = context.read<AuthRepository>();
+  void _navigateToOfficeDetail(Office office) async {
+    final authRepo = context.read<AuthRepository>();
 
-  Navigator.push(
-    context,
-    MaterialPageRoute(
-      builder: (context) => BlocProvider.value(
-        value: context.read<SearchBloc>(),
-        child: OfficeDetailPage(
-          office: office,
-          isReserved: false,
-          userId: _userId!,
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => BlocProvider.value(
+          value: context.read<SearchBloc>(),
+          child: OfficeDetailPage(
+            office: office,
+            isReserved: false,
+            userId: _userId!,
+          ),
         ),
       ),
-    ),
-  );
-}
-
+    );
+  }
 
   @override
   void dispose() {
@@ -218,7 +221,7 @@ void _navigateToOfficeDetail(Office office) async {
             ),
           ),
           const SizedBox(height: 24),
-          
+
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: TextField(
@@ -245,7 +248,10 @@ void _navigateToOfficeDetail(Office office) async {
                       onPressed: _searchByLocation,
                     ),
                     IconButton(
-                      icon: const Icon(Icons.filter_list, color: Colors.black87),
+                      icon: const Icon(
+                        Icons.filter_list,
+                        color: Colors.black87,
+                      ),
                       onPressed: _showFilterDialog,
                     ),
                   ],
@@ -254,7 +260,7 @@ void _navigateToOfficeDetail(Office office) async {
             ),
           ),
           const SizedBox(height: 16),
-          
+
           const Padding(
             padding: EdgeInsets.symmetric(horizontal: 16.0),
             child: Align(
@@ -270,18 +276,16 @@ void _navigateToOfficeDetail(Office office) async {
             ),
           ),
           const SizedBox(height: 8),
-          
+
           Expanded(
             child: BlocBuilder<SearchBloc, SearchState>(
               builder: (context, state) {
                 if (state.status == Status.loading) {
                   return const Center(
-                    child: CircularProgressIndicator(
-                      color: Color(0xFF8BC34A),
-                    ),
+                    child: CircularProgressIndicator(color: Color(0xFF8BC34A)),
                   );
                 }
-                
+
                 if (state.status == Status.failure) {
                   return Center(
                     child: Column(
@@ -316,7 +320,7 @@ void _navigateToOfficeDetail(Office office) async {
                     ),
                   );
                 }
-                
+
                 if (state.offices.isEmpty) {
                   return Center(
                     child: Column(
@@ -352,21 +356,21 @@ void _navigateToOfficeDetail(Office office) async {
                     ),
                   );
                 }
-                
-                return ListView.builder(
-  padding: const EdgeInsets.symmetric(horizontal: 16.0),
-  itemCount: state.offices.length,
-  itemBuilder: (context, index) {
-    return OfficeCard(
-      office: state.offices[index],
-      showButton: true,
-      isReserved: false,
-      userId: _userId ?? "",     // ← aquí lo pasas
-      onTap: () => _navigateToOfficeDetail(state.offices[index]),
-    );
-  },
-);
 
+                return ListView.builder(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  itemCount: state.offices.length,
+                  itemBuilder: (context, index) {
+                    return OfficeCard(
+                      office: state.offices[index],
+                      showButton: true,
+                      isReserved: false,
+                      userId: _userId ?? "",
+                      onTap: () =>
+                          _navigateToOfficeDetail(state.offices[index]),
+                    );
+                  },
+                );
               },
             ),
           ),

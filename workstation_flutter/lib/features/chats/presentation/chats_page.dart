@@ -10,7 +10,6 @@ class ChatsPage extends StatefulWidget {
 }
 
 class _ChatsPageState extends State<ChatsPage> {
-
   final List<Chat> _chats = [
     Chat(
       id: '1',
@@ -75,7 +74,6 @@ class _ChatsPageState extends State<ChatsPage> {
             ),
           ),
           const SizedBox(height: 16),
-          // Chat list
           Expanded(
             child: ListView.builder(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -95,7 +93,7 @@ class _ChatsPageState extends State<ChatsPage> {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
-        color: const Color(0xFFD4E99F), // Light green
+        color: const Color(0xFFD4E99F),
         borderRadius: BorderRadius.circular(25),
         boxShadow: [
           BoxShadow(
@@ -107,7 +105,7 @@ class _ChatsPageState extends State<ChatsPage> {
       ),
       child: ListTile(
         contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        leading: Hero( // ← Agrega Hero aquí
+        leading: Hero(
           tag: 'chat_${chat.id}',
           child: CircleAvatar(
             radius: 30,
@@ -139,12 +137,10 @@ class _ChatsPageState extends State<ChatsPage> {
                 overflow: TextOverflow.ellipsis,
               )
             : null,
-        onTap: () { // ← Actualiza el onTap
+        onTap: () {
           Navigator.push(
             context,
-            MaterialPageRoute(
-              builder: (context) => ChatDetailPage(chat: chat),
-            ),
+            MaterialPageRoute(builder: (context) => ChatDetailPage(chat: chat)),
           );
         },
       ),

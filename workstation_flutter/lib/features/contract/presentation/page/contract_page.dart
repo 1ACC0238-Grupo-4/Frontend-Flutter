@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:provider/provider.dart';
 import 'package:workstation_flutter/core/enums/status.dart';
 import 'package:workstation_flutter/core/storage/auth_repository.dart';
 import 'package:workstation_flutter/features/contract/data/contacts_service.dart';
@@ -245,21 +244,12 @@ class _CreateContractPageState extends State<CreateContractPage> {
   Future<void> _activateContract(String contractId) async {
     if (_isActivatingContract) return;
 
-    print('🎯 ====== INICIANDO ACTIVACIÓN DE CONTRATO ======');
-    print('📝 Contract ID: $contractId');
-    print('🏢 Office ID: ${widget.officeId}');
-
     setState(() {
       _isActivatingContract = true;
     });
 
-    print('✅ Estado _isActivatingContract cambiado a: true');
-
     final contractBloc = context.read<ContractBloc>();
     contractBloc.add(ActivateContract(contractId: contractId));
-
-    print('📤 Evento ActivateContract enviado al bloc');
-    print('================================================\n');
   }
 
   @override
@@ -267,7 +257,6 @@ class _CreateContractPageState extends State<CreateContractPage> {
     return Scaffold(
       body: BlocConsumer<ContractBloc, ContractState>(
         listener: (context, state) async {
-          // BLOQUE 1: Crear contrato
           if (state.status == Status.success &&
               state.selectedContract != null) {
             if (!_isContractCreated) {
@@ -295,14 +284,8 @@ class _CreateContractPageState extends State<CreateContractPage> {
                 ),
               );
             }
-          } // <--- CIERRA AQUÍ el if de crear contrato
-
-          // BLOQUE 2: Error al activar (falta firma)
+          }
           if (state.status == Status.failure && _isActivatingContract) {
-            print('❌ ====== ERROR AL ACTIVAR CONTRATO ======');
-            print('📄 Error message: ${state.errorMessage}');
-            print('==========================================\n');
-
             setState(() {
               _isActivatingContract = false;
             });
@@ -310,52 +293,38 @@ class _CreateContractPageState extends State<CreateContractPage> {
             if (state.errorMessage != null &&
                 (state.errorMessage!.contains('Ambas firmas son necesarias') ||
                     state.errorMessage!.contains('firmas'))) {
-              print('⚠️ Motivo: Falta firma del propietario');
               _showInfo(
-                '⏳ Propietario aún no ha firmado. '
+                'Propietario aún no ha firmado. '
                 'El contrato se activará cuando ambas partes hayan firmado.',
               );
             } else {
-              print('⚠️ Motivo: Otro error');
               _showError('Error al activar contrato: ${state.errorMessage}');
             }
           }
-          // ⬇️⬇️⬇️ BLOQUE 3: AGREGAR AQUÍ - Activación exitosa ⬇️⬇️⬇️
-        if (state.status == Status.success &&
-            state.hasAllSignatures &&
-            state.isActive &&
-            _isActivatingContract) {
-          print('✅ ====== CONTRATO ACTIVADO EXITOSAMENTE ======');
-          print('🆔 Contract ID: ${state.selectedContract?.id}');
-          print('📊 Estado: ${state.selectedContract?.status}');
-          print('✅ Backend ya actualizó la oficina a available=false');
-          print('===============================================\n');
+          if (state.status == Status.success &&
+              state.hasAllSignatures &&
+              state.isActive &&
+              _isActivatingContract) {
+            setState(() {
+              _isActivatingContract = false;
+            });
 
-          setState(() {
-            _isActivatingContract = false;
-          });
-
-          _showSuccess('¡Contrato activado exitosamente!');
-
-          // Esperar un momento antes de navegar
-          await Future.delayed(const Duration(seconds: 2));
-
-          if (!mounted) return;          
-          // NAVEGACIÓN A LA PÁGINA DE DETALLES
-          Navigator.of(context).pushReplacement(
-            MaterialPageRoute(
-              builder: (context) => BlocProvider(
-                create: (context) => ContractDetailBloc(
-                  contractService: context.read<ContractAPIService>(),
-                  officeService: context.read<OfficeAPIService>(),
-                  userService: context.read<UserService>(),
+            _showSuccess('¡Contrato activado exitosamente!');
+            await Future.delayed(const Duration(seconds: 2));
+            if (!mounted) return;
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(
+                builder: (context) => BlocProvider(
+                  create: (context) => ContractDetailBloc(
+                    contractService: context.read<ContractAPIService>(),
+                    officeService: context.read<OfficeAPIService>(),
+                    userService: context.read<UserService>(),
+                  ),
+                  child: ContractDetailPage(officeId: widget.officeId),
                 ),
-                child: ContractDetailPage(officeId: widget.officeId),
               ),
-            ),
-          );
-        }
-        // ⬆️⬆️⬆️ FIN BLOQUE 3 ⬆️⬆️⬆️
+            );
+          }
         },
         builder: (context, state) {
           return Stack(

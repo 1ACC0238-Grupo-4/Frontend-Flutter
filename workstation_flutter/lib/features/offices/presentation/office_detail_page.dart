@@ -271,14 +271,11 @@ class OfficeDetailPage extends StatelessWidget {
                   child: CircularProgressIndicator(color: Color(0xFF8BC34A)),
                 ),
               );
-              // Pequeño delay para mejor UX
               await Future.delayed(const Duration(milliseconds: 300));
 
               if (context.mounted) {
-                // Cerrar loading
                 Navigator.pop(context);
 
-                // Navegar a ContractDetailPage
                 Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -333,7 +330,6 @@ class OfficeDetailPage extends StatelessWidget {
   }
 
   Widget _buildAvailableButtons(BuildContext context) {
-    // Asumiendo que 'office' es un objeto que tiene una propiedad 'id' y 'available'
     final officeId = office.id;
 
     return Column(
@@ -343,7 +339,6 @@ class OfficeDetailPage extends StatelessWidget {
           child: ElevatedButton.icon(
             onPressed: office.available
                 ? () {
-                    // ✅ IMPLEMENTACIÓN DE NAVEGACIÓN A CONTRACTSPAGE
                     Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -378,7 +373,6 @@ class OfficeDetailPage extends StatelessWidget {
           child: OutlinedButton.icon(
             onPressed: office.available
                 ? () {
-                    // TODO: Navegar a chat con el dueño
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text('Abriendo chat...')),
                     );

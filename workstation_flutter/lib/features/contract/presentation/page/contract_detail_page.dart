@@ -10,10 +10,8 @@ import 'package:intl/intl.dart';
 class ContractDetailPage extends StatefulWidget {
   final String officeId;
 
-  const ContractDetailPage({
-    Key? key,
-    required this.officeId,
-  }) : super(key: key);
+  const ContractDetailPage({Key? key, required this.officeId})
+    : super(key: key);
 
   @override
   State<ContractDetailPage> createState() => _ContractDetailPageState();
@@ -23,10 +21,9 @@ class _ContractDetailPageState extends State<ContractDetailPage> {
   @override
   void initState() {
     super.initState();
-    // Cargar el contrato cuando se inicializa la página
     context.read<ContractDetailBloc>().add(
-          LoadContractByOfficeId(officeId: widget.officeId),
-        );
+      LoadContractByOfficeId(officeId: widget.officeId),
+    );
   }
 
   String _formatDate(DateTime date) {
@@ -38,144 +35,149 @@ class _ContractDetailPageState extends State<ContractDetailPage> {
   }
 
   @override
-Widget build(BuildContext context) {
-  return Scaffold(
-    backgroundColor: const Color(0xFF8BC34A),
-    body: SafeArea(
-      child: Column(
-        children: [
-          _buildHeader(),
-          Expanded(
-            child: BlocBuilder<ContractDetailBloc, ContractDetailState>(
-              builder: (context, state) {
-                if (state.status == Status.loading) {
-                  return const Center(
-                    child: CircularProgressIndicator(color: Colors.white),
-                  );
-                }
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFF8BC34A),
+      body: SafeArea(
+        child: Column(
+          children: [
+            _buildHeader(),
+            Expanded(
+              child: BlocBuilder<ContractDetailBloc, ContractDetailState>(
+                builder: (context, state) {
+                  if (state.status == Status.loading) {
+                    return const Center(
+                      child: CircularProgressIndicator(color: Colors.white),
+                    );
+                  }
 
-                if (state.status == Status.failure) {
-                  return Center(
-                    child: Padding(
-                      padding: const EdgeInsets.all(24.0),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Icon(
-                            Icons.error_outline,
-                            size: 64,
-                            color: Colors.white,
-                          ),
-                          const SizedBox(height: 16),
-                          const Text(
-                            'Error al cargar el contrato',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
+                  if (state.status == Status.failure) {
+                    return Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(24.0),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(
+                              Icons.error_outline,
+                              size: 64,
                               color: Colors.white,
                             ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            state.errorMessage ?? 'Error desconocido',
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(
-                              fontSize: 14,
-                              color: Colors.white70,
+                            const SizedBox(height: 16),
+                            const Text(
+                              'Error al cargar el contrato',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
                             ),
-                          ),
+                            const SizedBox(height: 8),
+                            Text(
+                              state.errorMessage ?? 'Error desconocido',
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                fontSize: 14,
+                                color: Colors.white70,
+                              ),
+                            ),
+                            const SizedBox(height: 24),
+                            ElevatedButton.icon(
+                              onPressed: () {
+                                context.read<ContractDetailBloc>().add(
+                                  LoadContractByOfficeId(
+                                    officeId: widget.officeId,
+                                  ),
+                                );
+                              },
+                              icon: const Icon(Icons.refresh),
+                              label: const Text('Reintentar'),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.white,
+                                foregroundColor: const Color(0xFF8BC34A),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 24,
+                                  vertical: 12,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  }
+
+                  if (state.contract == null) {
+                    return const Center(
+                      child: Text(
+                        'No se encontró el contrato',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    );
+                  }
+
+                  return Container(
+                    margin: const EdgeInsets.only(top: 20),
+                    decoration: const BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(30),
+                        topRight: Radius.circular(30),
+                      ),
+                    ),
+                    child: SingleChildScrollView(
+                      padding: const EdgeInsets.all(24.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _buildSectionTitle('Información General'),
+                          const SizedBox(height: 12),
+                          _buildInfoCard(state),
                           const SizedBox(height: 24),
-                          // ✅ BOTÓN DE REINTENTAR
-                          ElevatedButton.icon(
-                            onPressed: () {
-                              context.read<ContractDetailBloc>().add(
-                                    LoadContractByOfficeId(officeId: widget.officeId),
-                                  );
-                            },
-                            icon: const Icon(Icons.refresh),
-                            label: const Text('Reintentar'),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.white,
-                              foregroundColor: const Color(0xFF8BC34A),
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 24,
-                                vertical: 12,
-                              ),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                            ),
+
+                          _buildSectionTitle('Ubicación'),
+                          const SizedBox(height: 12),
+                          _buildOfficeCard(state),
+                          const SizedBox(height: 24),
+
+                          _buildSectionTitle('Participantes'),
+                          const SizedBox(height: 12),
+                          _buildParticipantsCard(state),
+                          const SizedBox(height: 24),
+
+                          _buildSectionTitle('Detalles Económicos'),
+                          const SizedBox(height: 12),
+                          _buildEconomicCard(state),
+                          const SizedBox(height: 24),
+
+                          _buildSectionTitle(
+                            'Cláusulas (${state.contract!.clauses.length})',
                           ),
+                          const SizedBox(height: 12),
+                          _buildClausesCard(state),
+                          const SizedBox(height: 24),
+
+                          _buildSectionTitle(
+                            'Firmas (${state.contract!.signatures.length})',
+                          ),
+                          const SizedBox(height: 12),
+                          _buildSignaturesCard(state),
+                          const SizedBox(height: 32),
                         ],
                       ),
                     ),
                   );
-                }
-
-                if (state.contract == null) {
-                  return const Center(
-                    child: Text(
-                      'No se encontró el contrato',
-                      style: TextStyle(color: Colors.white),
-                    ),
-                  );
-                }
-
-                return Container(
-                  margin: const EdgeInsets.only(top: 20),
-                  decoration: const BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(30),
-                      topRight: Radius.circular(30),
-                    ),
-                  ),
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.all(24.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _buildSectionTitle('Información General'),
-                        const SizedBox(height: 12),
-                        _buildInfoCard(state),
-                        const SizedBox(height: 24),
-                        
-                        _buildSectionTitle('Ubicación'),
-                        const SizedBox(height: 12),
-                        _buildOfficeCard(state),
-                        const SizedBox(height: 24),
-                        
-                        _buildSectionTitle('Participantes'),
-                        const SizedBox(height: 12),
-                        _buildParticipantsCard(state),
-                        const SizedBox(height: 24),
-                        
-                        _buildSectionTitle('Detalles Económicos'),
-                        const SizedBox(height: 12),
-                        _buildEconomicCard(state),
-                        const SizedBox(height: 24),
-                        
-                        _buildSectionTitle('Cláusulas (${state.contract!.clauses.length})'),
-                        const SizedBox(height: 12),
-                        _buildClausesCard(state),
-                        const SizedBox(height: 24),
-                        
-                        _buildSectionTitle('Firmas (${state.contract!.signatures.length})'),
-                        const SizedBox(height: 12),
-                        _buildSignaturesCard(state),
-                        const SizedBox(height: 32),
-                      ],
-                    ),
-                  ),
-                );
-              },
+                },
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
-    ),
-  );
-}
+    );
+  }
 
   Widget _buildHeader() {
     return Container(
@@ -185,17 +187,11 @@ Widget build(BuildContext context) {
           IconButton(
             onPressed: () {
               Navigator.of(context).pushAndRemoveUntil(
-                MaterialPageRoute(
-                  builder: (context) => const SplashPage(),
-                ),
+                MaterialPageRoute(builder: (context) => const SplashPage()),
                 (route) => false,
               );
             },
-            icon: const Icon(
-              Icons.arrow_back,
-              color: Colors.white,
-              size: 28,
-            ),
+            icon: const Icon(Icons.arrow_back, color: Colors.white, size: 28),
           ),
           const SizedBox(width: 8),
           const Expanded(
@@ -247,7 +243,7 @@ Widget build(BuildContext context) {
 
   Widget _buildInfoCard(ContractDetailState state) {
     final contract = state.contract!;
-    
+
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -283,7 +279,8 @@ Widget build(BuildContext context) {
           _buildInfoRow(
             icon: Icons.timelapse,
             label: 'Duración',
-            value: '${contract.endDate.difference(contract.startDate).inDays} días',
+            value:
+                '${contract.endDate.difference(contract.startDate).inDays} días',
           ),
         ],
       ),
@@ -358,7 +355,6 @@ Widget build(BuildContext context) {
       ),
       child: Column(
         children: [
-          // Owner
           Row(
             children: [
               Container(
@@ -380,10 +376,7 @@ Widget build(BuildContext context) {
                   children: [
                     const Text(
                       'Propietario',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.black54,
-                      ),
+                      style: TextStyle(fontSize: 12, color: Colors.black54),
                     ),
                     const SizedBox(height: 4),
                     if (state.ownerStatus == Status.loading)
@@ -404,7 +397,6 @@ Widget build(BuildContext context) {
             ],
           ),
           const Divider(height: 32),
-          // Renter
           Row(
             children: [
               Container(
@@ -426,10 +418,7 @@ Widget build(BuildContext context) {
                   children: [
                     const Text(
                       'Arrendatario',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.black54,
-                      ),
+                      style: TextStyle(fontSize: 12, color: Colors.black54),
                     ),
                     const SizedBox(height: 4),
                     if (state.renterStatus == Status.loading)
@@ -500,10 +489,7 @@ Widget build(BuildContext context) {
         child: const Center(
           child: Text(
             'No hay cláusulas registradas',
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.black54,
-            ),
+            style: TextStyle(fontSize: 14, color: Colors.black54),
           ),
         ),
       );
@@ -600,10 +586,7 @@ Widget build(BuildContext context) {
         child: const Center(
           child: Text(
             'No hay firmas registradas',
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.black54,
-            ),
+            style: TextStyle(fontSize: 14, color: Colors.black54),
           ),
         ),
       );
@@ -611,7 +594,6 @@ Widget build(BuildContext context) {
 
     return Column(
       children: contract.signatures.map((signature) {
-        // Determinar si es el owner o el renter
         final isOwner = signature.signerId == contract.ownerId;
         final signerName = isOwner
             ? (state.owner?.firstName ?? 'Propietario')
@@ -661,11 +643,7 @@ Widget build(BuildContext context) {
                   ],
                 ),
               ),
-              const Icon(
-                Icons.verified,
-                color: Color(0xFF8BC34A),
-                size: 24,
-              ),
+              const Icon(Icons.verified, color: Color(0xFF8BC34A), size: 24),
             ],
           ),
         );
@@ -680,11 +658,7 @@ Widget build(BuildContext context) {
   }) {
     return Row(
       children: [
-        Icon(
-          icon,
-          color: const Color(0xFF8BC34A),
-          size: 20,
-        ),
+        Icon(icon, color: const Color(0xFF8BC34A), size: 20),
         const SizedBox(width: 12),
         Expanded(
           child: Column(
@@ -692,10 +666,7 @@ Widget build(BuildContext context) {
             children: [
               Text(
                 label,
-                style: const TextStyle(
-                  fontSize: 12,
-                  color: Colors.black54,
-                ),
+                style: const TextStyle(fontSize: 12, color: Colors.black54),
               ),
               const SizedBox(height: 4),
               Text(
@@ -720,9 +691,7 @@ Widget build(BuildContext context) {
         borderRadius: BorderRadius.circular(16),
       ),
       child: const Center(
-        child: CircularProgressIndicator(
-          color: Color(0xFF8BC34A),
-        ),
+        child: CircularProgressIndicator(color: Color(0xFF8BC34A)),
       ),
     );
   }
@@ -737,10 +706,7 @@ Widget build(BuildContext context) {
       child: Center(
         child: Text(
           message,
-          style: const TextStyle(
-            fontSize: 14,
-            color: Colors.black54,
-          ),
+          style: const TextStyle(fontSize: 14, color: Colors.black54),
         ),
       ),
     );

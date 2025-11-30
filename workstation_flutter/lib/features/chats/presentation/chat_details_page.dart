@@ -4,10 +4,7 @@ import 'package:workstation_flutter/features/chats/domain/chat.dart';
 class ChatDetailPage extends StatefulWidget {
   final Chat chat;
 
-  const ChatDetailPage({
-    super.key,
-    required this.chat,
-  });
+  const ChatDetailPage({super.key, required this.chat});
 
   @override
   State<ChatDetailPage> createState() => _ChatDetailPageState();
@@ -29,17 +26,23 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
       Message(
         text: 'Sí, está disponible. ¿A qué hora la necesitas?',
         isMe: true,
-        timestamp: DateTime.now().subtract(const Duration(hours: 1, minutes: 55)),
+        timestamp: DateTime.now().subtract(
+          const Duration(hours: 1, minutes: 55),
+        ),
       ),
       Message(
         text: 'Necesito desde las 9 AM hasta las 5 PM',
         isMe: false,
-        timestamp: DateTime.now().subtract(const Duration(hours: 1, minutes: 50)),
+        timestamp: DateTime.now().subtract(
+          const Duration(hours: 1, minutes: 50),
+        ),
       ),
       Message(
         text: 'Perfecto, puedo reservártela. El costo es S/ 300',
         isMe: true,
-        timestamp: DateTime.now().subtract(const Duration(hours: 1, minutes: 45)),
+        timestamp: DateTime.now().subtract(
+          const Duration(hours: 1, minutes: 45),
+        ),
       ),
     ]);
   }
@@ -105,10 +108,7 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                   ),
                   const Text(
                     'En línea',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.black54,
-                    ),
+                    style: TextStyle(fontSize: 12, color: Colors.black54),
                   ),
                 ],
               ),
@@ -132,7 +132,6 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
       ),
       body: Column(
         children: [
-          // Messages list
           Expanded(
             child: ListView.builder(
               padding: const EdgeInsets.all(16),
@@ -144,7 +143,6 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
               },
             ),
           ),
-          // Input area
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
@@ -225,10 +223,7 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
           children: [
             Text(
               message.text,
-              style: const TextStyle(
-                fontSize: 15,
-                color: Colors.black87,
-              ),
+              style: const TextStyle(fontSize: 15, color: Colors.black87),
             ),
             const SizedBox(height: 4),
             Text(
@@ -251,15 +246,10 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
   }
 }
 
-// Modelo simple de mensaje
 class Message {
   final String text;
   final bool isMe;
   final DateTime timestamp;
 
-  Message({
-    required this.text,
-    required this.isMe,
-    required this.timestamp,
-  });
+  Message({required this.text, required this.isMe, required this.timestamp});
 }
