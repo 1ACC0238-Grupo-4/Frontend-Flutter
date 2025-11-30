@@ -13,7 +13,7 @@ class ContractState {
   final String description;
   final DateTime? startDate;
   final DateTime? endDate;
-  final double baseAmount;
+  final int baseAmount;
   final double lateFee;
   final double interestRate;
 
@@ -49,7 +49,7 @@ class ContractState {
     String? description,
     DateTime? startDate,
     DateTime? endDate,
-    double? baseAmount,
+    int? baseAmount,
     double? lateFee,
     double? interestRate,
     

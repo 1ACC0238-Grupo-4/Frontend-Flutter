@@ -3,13 +3,17 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 import 'package:workstation_flutter/core/enums/status.dart';
 import 'package:workstation_flutter/core/storage/auth_repository.dart';
-import 'package:workstation_flutter/features/auth/presentation/pages/splash_page.dart';
+import 'package:workstation_flutter/features/contract/data/contacts_service.dart';
 import 'package:workstation_flutter/features/contract/domain/clause.dart';
 import 'package:workstation_flutter/features/contract/domain/contract.dart';
 import 'package:workstation_flutter/features/contract/domain/signature.dart';
 import 'package:workstation_flutter/features/contract/presentation/blocs/contract_bloc.dart';
+import 'package:workstation_flutter/features/contract/presentation/blocs/contract_detail_bloc.dart';
 import 'package:workstation_flutter/features/contract/presentation/blocs/contract_event.dart';
 import 'package:workstation_flutter/features/contract/presentation/blocs/contract_state.dart';
+import 'package:workstation_flutter/features/contract/presentation/page/contract_detail_page.dart';
+import 'package:workstation_flutter/features/profile/data/user_service.dart';
+import 'package:workstation_flutter/features/search/data/offices_service.dart';
 
 class CreateContractPage extends StatefulWidget {
   final String officeId;
@@ -316,6 +320,42 @@ class _CreateContractPageState extends State<CreateContractPage> {
               _showError('Error al activar contrato: ${state.errorMessage}');
             }
           }
+          // ⬇️⬇️⬇️ BLOQUE 3: AGREGAR AQUÍ - Activación exitosa ⬇️⬇️⬇️
+        if (state.status == Status.success &&
+            state.hasAllSignatures &&
+            state.isActive &&
+            _isActivatingContract) {
+          print('✅ ====== CONTRATO ACTIVADO EXITOSAMENTE ======');
+          print('🆔 Contract ID: ${state.selectedContract?.id}');
+          print('📊 Estado: ${state.selectedContract?.status}');
+          print('✅ Backend ya actualizó la oficina a available=false');
+          print('===============================================\n');
+
+          setState(() {
+            _isActivatingContract = false;
+          });
+
+          _showSuccess('¡Contrato activado exitosamente!');
+
+          // Esperar un momento antes de navegar
+          await Future.delayed(const Duration(seconds: 2));
+
+          if (!mounted) return;          
+          // NAVEGACIÓN A LA PÁGINA DE DETALLES
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(
+              builder: (context) => BlocProvider(
+                create: (context) => ContractDetailBloc(
+                  contractService: context.read<ContractAPIService>(),
+                  officeService: context.read<OfficeAPIService>(),
+                  userService: context.read<UserService>(),
+                ),
+                child: ContractDetailPage(officeId: widget.officeId),
+              ),
+            ),
+          );
+        }
+        // ⬆️⬆️⬆️ FIN BLOQUE 3 ⬆️⬆️⬆️
         },
         builder: (context, state) {
           return Stack(

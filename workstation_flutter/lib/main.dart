@@ -11,6 +11,8 @@ import 'package:workstation_flutter/features/auth/presentation/blocs/register_bl
 import 'package:workstation_flutter/features/auth/presentation/pages/splash_page.dart';
 import 'package:workstation_flutter/features/contract/data/contacts_service.dart';
 import 'package:workstation_flutter/features/contract/presentation/blocs/contract_bloc.dart';
+import 'package:workstation_flutter/features/contract/presentation/blocs/contract_detail_bloc.dart'; // ✅ IMPORTA ESTO
+import 'package:workstation_flutter/features/profile/data/user_service.dart';
 import 'package:workstation_flutter/features/search/data/offices_service.dart';
 import 'package:workstation_flutter/features/search/presentation/blocs/search_bloc.dart';
 
@@ -24,32 +26,49 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final authService = AuthService();
-    final tokenStorage = TokenStorage(); // Crea instancia de TokenStorage
-    final authRepository = AuthRepository(tokenStorage); // Pasa TokenStorage a AuthRepository
+    final tokenStorage = TokenStorage();
+    final authRepository = AuthRepository(tokenStorage);
     final officeService = OfficeAPIService();
     final contractService = ContractAPIService();
+    final userService = UserService();
     
     return MultiProvider(
       providers: [
-        // Provider para TokenStorage (por si otras partes lo necesitan)
+        // Provider para TokenStorage
         Provider<TokenStorage>.value(value: tokenStorage),
         
-        // Provider para AuthRepository con su dependencia
+        // Provider para AuthRepository
         Provider<AuthRepository>.value(value: authRepository),
         
-        // Tus BlocProviders existentes
+        // Providers de servicios
+        Provider<OfficeAPIService>.value(value: officeService),
+        Provider<ContractAPIService>.value(value: contractService),
+        Provider<UserService>.value(value: userService),
+        
+        // BlocProviders existentes
         BlocProvider(
           create: (context) => LoginBloc(service: authService),
         ),
         BlocProvider(
           create: (context) => RegisterBloc(service: authService),
         ),
-        BlocProvider(create: (context) => AuthBloc()..add(const AppStarted())),
+        BlocProvider(
+          create: (context) => AuthBloc()..add(const AppStarted()),
+        ),
         BlocProvider(
           create: (context) => SearchBloc(officeService: officeService),
         ),
         BlocProvider(
           create: (context) => ContractBloc(contractService: contractService),
+        ),
+        
+        // ✅ AGREGA ESTE NUEVO BLOC ✅
+        BlocProvider(
+          create: (context) => ContractDetailBloc(
+            contractService: contractService,
+            officeService: officeService,
+            userService: userService,
+          ),
         ),
       ],
       child: MaterialApp(

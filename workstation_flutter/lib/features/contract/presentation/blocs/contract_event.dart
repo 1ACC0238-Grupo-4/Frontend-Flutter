@@ -99,7 +99,7 @@ class OnEndDateChanged extends ContractEvent {
 }
 
 class OnBaseAmountChanged extends ContractEvent {
-  final double baseAmount;
+  final int baseAmount;
   const OnBaseAmountChanged({required this.baseAmount});
 }
 

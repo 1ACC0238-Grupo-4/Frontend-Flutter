@@ -19,9 +19,9 @@ class ContractResponse {
   final DateTime createdAt;
   final DateTime? activatedAt;
   final DateTime? terminatedAt;
-  final List<ClauseResponse> clauses;  // ✅ Mantener como lista pero manejar null en fromJson
-  final List<SignatureResponse> signatures;  // ✅ Mantener como lista pero manejar null en fromJson
-  final List<CompensationResponse> compensations;  // ✅ Mantener como lista pero manejar null en fromJson
+  final List<ClauseResponse> clauses;  
+  final List<SignatureResponse> signatures; 
+  final List<CompensationResponse> compensations;   
   final ReceiptResponse? receipt;
 
   ContractResponse({
@@ -45,47 +45,47 @@ class ContractResponse {
     this.receipt,
   });
 
-  factory ContractResponse.fromJson(Map<String, dynamic> json) {
-    return ContractResponse(
-      id: json['id'],
-      officeId: json['officeId'],
-      ownerId: json['ownerId'],
-      renterId: json['renterId'],
-      description: json['description'],
-      startDate: DateTime.parse(json['startDate']),
-      endDate: DateTime.parse(json['endDate']),
-      baseAmount: json['baseAmount'],
-      lateFee: (json['lateFee'] as num).toDouble(),
-      interestRate: (json['interestRate'] as num).toDouble(),
-      status: json['status'],
-      createdAt: DateTime.parse(json['createdAt']),
-      activatedAt: json['activatedAt'] != null 
-          ? DateTime.parse(json['activatedAt']) 
-          : null,
-      terminatedAt: json['terminatedAt'] != null 
-          ? DateTime.parse(json['terminatedAt']) 
-          : null,
-      // ✅ CAMBIO: Manejar null devolviendo lista vacía
-      clauses: json['clauses'] != null
-          ? (json['clauses'] as List)
-              .map((e) => ClauseResponse.fromJson(e))
-              .toList()
-          : [],  // ✅ Lista vacía si es null
-      signatures: json['signatures'] != null
-          ? (json['signatures'] as List)
-              .map((e) => SignatureResponse.fromJson(e))
-              .toList()
-          : [],  // ✅ Lista vacía si es null
-      compensations: json['compensations'] != null
-          ? (json['compensations'] as List)
-              .map((e) => CompensationResponse.fromJson(e))
-              .toList()
-          : [],  // ✅ Lista vacía si es null
-      receipt: json['receipt'] != null 
-          ? ReceiptResponse.fromJson(json['receipt']) 
-          : null,
-    );
-  }
+factory ContractResponse.fromJson(Map<String, dynamic> json) {
+  return ContractResponse(
+    id: json['id'],
+    officeId: json['officeId'],
+    ownerId: json['ownerId'],
+    renterId: json['renterId'],
+    description: json['description'],
+    startDate: DateTime.parse(json['startDate']),
+    endDate: DateTime.parse(json['endDate']),
+        baseAmount: (json['baseAmount'] as num).toInt(),
+    
+    lateFee: (json['lateFee'] as num).toDouble(),
+    interestRate: (json['interestRate'] as num).toDouble(),
+    status: json['status'],
+    createdAt: DateTime.parse(json['createdAt']),
+    activatedAt: json['activatedAt'] != null 
+        ? DateTime.parse(json['activatedAt']) 
+        : null,
+    terminatedAt: json['terminatedAt'] != null 
+        ? DateTime.parse(json['terminatedAt']) 
+        : null,
+    clauses: json['clauses'] != null
+        ? (json['clauses'] as List)
+            .map((e) => ClauseResponse.fromJson(e))
+            .toList()
+        : [],
+    signatures: json['signatures'] != null
+        ? (json['signatures'] as List)
+            .map((e) => SignatureResponse.fromJson(e))
+            .toList()
+        : [],
+    compensations: json['compensations'] != null
+        ? (json['compensations'] as List)
+            .map((e) => CompensationResponse.fromJson(e))
+            .toList()
+        : [],
+    receipt: json['receipt'] != null 
+        ? ReceiptResponse.fromJson(json['receipt']) 
+        : null,
+  );
+}
 
   Contract toEntity() {
     return Contract(

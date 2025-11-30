@@ -2,7 +2,7 @@ class Office {
   final String id;
   final String location;
   final String? description;
-  final String? imageUrl;
+  final String imageUrl;
   final int capacity;
   final int costPerDay;
   final bool available;
@@ -12,7 +12,7 @@ class Office {
     required this.id,
     required this.location,
     this.description,
-    this.imageUrl,
+    required this.imageUrl,
     required this.capacity,
     required this.costPerDay,
     required this.available,

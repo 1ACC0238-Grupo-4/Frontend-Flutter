@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:workstation_flutter/features/contract/presentation/page/contract_detail_page.dart';
 import 'package:workstation_flutter/features/contract/presentation/page/contract_page.dart';
 import 'package:workstation_flutter/features/offices/domain/office.dart';
 
@@ -7,13 +8,11 @@ class OfficeDetailPage extends StatelessWidget {
   final bool isReserved;
   final String userId;
 
-
   const OfficeDetailPage({
     super.key,
     required this.office,
     this.isReserved = false,
-    required this.userId
-    
+    required this.userId,
   });
 
   @override
@@ -73,7 +72,11 @@ class OfficeDetailPage extends StatelessWidget {
                       child: const Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(Icons.check_circle, size: 16, color: Colors.white),
+                          Icon(
+                            Icons.check_circle,
+                            size: 16,
+                            color: Colors.white,
+                          ),
                           SizedBox(width: 4),
                           Text(
                             'Reservada',
@@ -124,7 +127,7 @@ class OfficeDetailPage extends StatelessWidget {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 24),                  
+                  const SizedBox(height: 24),
                   if (!isReserved)
                     Container(
                       padding: const EdgeInsets.symmetric(
@@ -154,18 +157,20 @@ class OfficeDetailPage extends StatelessWidget {
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
-                              color: office.available ? Colors.green : Colors.red,
+                              color: office.available
+                                  ? Colors.green
+                                  : Colors.red,
                             ),
                           ),
                         ],
                       ),
                     ),
                   if (!isReserved) const SizedBox(height: 24),
-                  
+
                   if (isReserved) ...[
                     _buildReservationInfo(),
                     const SizedBox(height: 24),
-                  ],                  
+                  ],
                   const Text(
                     'Servicios incluidos',
                     style: TextStyle(
@@ -238,10 +243,7 @@ class OfficeDetailPage extends StatelessWidget {
       children: [
         Text(
           label,
-          style: TextStyle(
-            fontSize: 14,
-            color: Colors.black.withOpacity(0.7),
-          ),
+          style: TextStyle(fontSize: 14, color: Colors.black.withOpacity(0.7)),
         ),
         Text(
           value,
@@ -261,13 +263,30 @@ class OfficeDetailPage extends StatelessWidget {
         SizedBox(
           width: double.infinity,
           child: ElevatedButton.icon(
-            onPressed: () {
-              // TODO: Abrir contrato PDF
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Abriendo contrato...'),
+            onPressed: () async {
+              showDialog(
+                context: context,
+                barrierDismissible: false,
+                builder: (context) => const Center(
+                  child: CircularProgressIndicator(color: Color(0xFF8BC34A)),
                 ),
               );
+              // Pequeño delay para mejor UX
+              await Future.delayed(const Duration(milliseconds: 300));
+
+              if (context.mounted) {
+                // Cerrar loading
+                Navigator.pop(context);
+
+                // Navegar a ContractDetailPage
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        ContractDetailPage(officeId: office.id),
+                  ),
+                );
+              }
             },
             icon: const Icon(Icons.description),
             label: const Text(
@@ -291,9 +310,7 @@ class OfficeDetailPage extends StatelessWidget {
             onPressed: () {
               // TODO: Navegar a chat con el dueño
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Contactando al propietario...'),
-                ),
+                const SnackBar(content: Text('Contactando al propietario...')),
               );
             },
             icon: const Icon(Icons.chat_bubble_outline),
@@ -316,73 +333,75 @@ class OfficeDetailPage extends StatelessWidget {
   }
 
   Widget _buildAvailableButtons(BuildContext context) {
-  // Asumiendo que 'office' es un objeto que tiene una propiedad 'id' y 'available'
-  final officeId = office.id; 
+    // Asumiendo que 'office' es un objeto que tiene una propiedad 'id' y 'available'
+    final officeId = office.id;
 
-  return Column(
-    children: [
-      SizedBox(
-        width: double.infinity,
-        child: ElevatedButton.icon(
-          onPressed: office.available
-              ? () {
-                  // ✅ IMPLEMENTACIÓN DE NAVEGACIÓN A CONTRACTSPAGE
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => CreateContractPage(officeId: office.id, officeName: office.location, officeCost: office.costPerDay),
-                    ),
-                  );
-                }
-              : null,
-          icon: const Icon(Icons.event_available),
-          label: const Text(
-            'Reservar ahora',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFF8BC34A),
-            foregroundColor: Colors.black87,
-            padding: const EdgeInsets.symmetric(vertical: 16),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(25),
+    return Column(
+      children: [
+        SizedBox(
+          width: double.infinity,
+          child: ElevatedButton.icon(
+            onPressed: office.available
+                ? () {
+                    // ✅ IMPLEMENTACIÓN DE NAVEGACIÓN A CONTRACTSPAGE
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => CreateContractPage(
+                          officeId: office.id,
+                          officeName: office.location,
+                          officeCost: office.costPerDay,
+                        ),
+                      ),
+                    );
+                  }
+                : null,
+            icon: const Icon(Icons.event_available),
+            label: const Text(
+              'Reservar ahora',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
-            disabledBackgroundColor: Colors.grey,
-          ),
-        ),
-      ),
-      const SizedBox(height: 12),
-      SizedBox(
-        width: double.infinity,
-        child: OutlinedButton.icon(
-          onPressed: office.available
-              ? () {
-                  // TODO: Navegar a chat con el dueño
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Abriendo chat...'),
-                    ),
-                  );
-                }
-              : null,
-          icon: const Icon(Icons.message),
-          label: const Text(
-            'Mensaje al propietario',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-          ),
-          style: OutlinedButton.styleFrom(
-            foregroundColor: const Color(0xFF689F38),
-            side: const BorderSide(color: Color(0xFF689F38), width: 2),
-            padding: const EdgeInsets.symmetric(vertical: 16),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(25),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF8BC34A),
+              foregroundColor: Colors.black87,
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(25),
+              ),
+              disabledBackgroundColor: Colors.grey,
             ),
           ),
         ),
-      ),
-    ],
-  );
-}
+        const SizedBox(height: 12),
+        SizedBox(
+          width: double.infinity,
+          child: OutlinedButton.icon(
+            onPressed: office.available
+                ? () {
+                    // TODO: Navegar a chat con el dueño
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Abriendo chat...')),
+                    );
+                  }
+                : null,
+            icon: const Icon(Icons.message),
+            label: const Text(
+              'Mensaje al propietario',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+            style: OutlinedButton.styleFrom(
+              foregroundColor: const Color(0xFF689F38),
+              side: const BorderSide(color: Color(0xFF689F38), width: 2),
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(25),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
 
   Widget _buildInfoCard({
     required IconData icon,
@@ -441,26 +460,18 @@ class OfficeDetailPage extends StatelessWidget {
           const SizedBox(width: 8),
           Text(
             service.name,
-            style: const TextStyle(
-              fontSize: 14,
-              color: Colors.black87,
-            ),
+            style: const TextStyle(fontSize: 14, color: Colors.black87),
           ),
         ],
       ),
     );
   }
 
-
   Widget _buildPlaceholderImage() {
     return Container(
       color: Colors.grey[300],
       child: const Center(
-        child: Icon(
-          Icons.business,
-          size: 80,
-          color: Colors.grey,
-        ),
+        child: Icon(Icons.business, size: 80, color: Colors.grey),
       ),
     );
   }

@@ -1,7 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:workstation_flutter/core/enums/status.dart';
 import 'package:workstation_flutter/features/contract/data/contacts_service.dart';
-import 'package:workstation_flutter/features/contract/domain/response/contract_response.dart';
 import 'package:workstation_flutter/features/contract/presentation/blocs/contract_event.dart';
 import 'package:workstation_flutter/features/contract/presentation/blocs/contract_state.dart';
 
