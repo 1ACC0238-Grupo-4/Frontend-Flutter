@@ -139,12 +139,6 @@ class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
     return null; 
   }
 
-  bool _isPasswordStrong(String password) {
-    final hasLetters = password.contains(RegExp(r'[a-zA-Z]'));
-    final hasNumbers = password.contains(RegExp(r'[0-9]'));
-    return hasLetters && hasNumbers;
-  }
-
   String _parseErrorMessage(String error) {
     if (error.contains('409') || error.contains('Conflict')) {
       return 'Este email ya está registrado. Intenta iniciar sesión.';

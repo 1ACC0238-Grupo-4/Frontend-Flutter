@@ -330,8 +330,6 @@ class OfficeDetailPage extends StatelessWidget {
   }
 
   Widget _buildAvailableButtons(BuildContext context) {
-    final officeId = office.id;
-
     return Column(
       children: [
         SizedBox(

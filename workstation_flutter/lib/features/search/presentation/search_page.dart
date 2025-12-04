@@ -172,8 +172,6 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   void _navigateToOfficeDetail(Office office) async {
-    final authRepo = context.read<AuthRepository>();
-
     Navigator.push(
       context,
       MaterialPageRoute(

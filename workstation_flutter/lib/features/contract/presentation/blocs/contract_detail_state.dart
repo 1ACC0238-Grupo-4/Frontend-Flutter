@@ -1,7 +1,6 @@
 import 'package:workstation_flutter/core/enums/status.dart';
 import 'package:workstation_flutter/features/contract/domain/response/contract_response.dart';
 import 'package:workstation_flutter/features/offices/domain/office.dart';
-import 'package:workstation_flutter/features/profile/domain/user.dart';
 import 'package:workstation_flutter/features/profile/domain/user_response.dart';
 
 class ContractDetailState {
