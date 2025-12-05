@@ -32,8 +32,7 @@ class OfficeDetailPage extends StatelessWidget {
             flexibleSpace: FlexibleSpaceBar(
               background: Hero(
                 tag: 'office_${office.id}',
-                child: office.imageUrl != null
-                    ? Image.network(
+                child: Image.network(
                         office.imageUrl!,
                         fit: BoxFit.cover,
                         loadingBuilder: (context, child, loadingProgress) {
@@ -48,8 +47,7 @@ class OfficeDetailPage extends StatelessWidget {
                         errorBuilder: (context, error, stackTrace) {
                           return _buildPlaceholderImage();
                         },
-                      )
-                    : _buildPlaceholderImage(),
+                      ),
               ),
             ),
           ),

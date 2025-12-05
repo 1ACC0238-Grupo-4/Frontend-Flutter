@@ -35,18 +35,18 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     try {
       await service.login(state.email, state.password);
       emit(state.copyWith(status: Status.success));
-    } on SocketException catch (e) {
+    } on SocketException {
       emit(state.copyWith(
         status: Status.failure,
         errorMessage: 'No hay conexión a internet. Verifica tu red.',
       ));
-    } on TimeoutException catch (e) {
+    } on TimeoutException {
  
       emit(state.copyWith(
         status: Status.failure,
         errorMessage: 'La solicitud tardó demasiado. Intenta nuevamente.',
       ));
-    } on FormatException catch (e) {
+    } on FormatException {
 
       emit(state.copyWith(
         status: Status.failure,

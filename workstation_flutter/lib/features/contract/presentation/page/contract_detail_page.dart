@@ -10,8 +10,7 @@ import 'package:intl/intl.dart';
 class ContractDetailPage extends StatefulWidget {
   final String officeId;
 
-  const ContractDetailPage({Key? key, required this.officeId})
-    : super(key: key);
+  const ContractDetailPage({super.key, required this.officeId});
 
   @override
   State<ContractDetailPage> createState() => _ContractDetailPageState();

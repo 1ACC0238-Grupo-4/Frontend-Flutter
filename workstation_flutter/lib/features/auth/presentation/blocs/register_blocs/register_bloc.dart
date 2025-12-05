@@ -65,17 +65,17 @@ class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
       );
       
       emit(state.copyWith(status: Status.success));
-    } on SocketException catch (e) {
+    } on SocketException {
       emit(state.copyWith(
         status: Status.failure,
         errorMessage: 'No hay conexión a internet. Verifica tu red.',
       ));
-    } on TimeoutException catch (e) {
+    } on TimeoutException {
       emit(state.copyWith(
         status: Status.failure,
         errorMessage: 'La solicitud tardó demasiado. Intenta nuevamente.',
       ));
-    } on FormatException catch (e) {
+    } on FormatException {
       emit(state.copyWith(
         status: Status.failure,
         errorMessage: 'Error en el formato de datos. Contacta soporte.',

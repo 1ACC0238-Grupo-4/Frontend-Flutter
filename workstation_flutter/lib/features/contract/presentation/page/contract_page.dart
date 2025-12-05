@@ -20,11 +20,11 @@ class CreateContractPage extends StatefulWidget {
   final int officeCost;
 
   const CreateContractPage({
-    Key? key,
+    super.key,
     required this.officeId,
     required this.officeName,
     required this.officeCost,
-  }) : super(key: key);
+  });
 
   @override
   State<CreateContractPage> createState() => _CreateContractPageState();
@@ -40,7 +40,7 @@ class _CreateContractPageState extends State<CreateContractPage> {
   bool _clauseMandatory = false;
 
   DateTimeRange? _selectedDateRange;
-  List<ClauseItem> _clauses = [];
+  final List<ClauseItem> _clauses = [];
 
   String? _userId;
   String? _createdContractId;

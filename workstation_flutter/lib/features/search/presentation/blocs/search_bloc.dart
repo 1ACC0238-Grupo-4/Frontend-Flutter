@@ -99,8 +99,8 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
   ) async {
     emit(state.copyWith(status: Status.loading));
     try {
-      List<Office> _offices = await officeService.getAllOffices();
-      final available = _offices
+      List<Office> offices = await officeService.getAllOffices();
+      final available = offices
           .where((office) => office.available == true)
           .toList();
 

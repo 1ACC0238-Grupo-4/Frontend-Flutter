@@ -64,8 +64,7 @@ void _navigateToDetail(BuildContext context) {
                 tag: 'office_${office.id}',
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(15),
-                  child: office.imageUrl != null
-                      ? Image.network(
+                  child: Image.network(
                           office.imageUrl!,
                           width: 120,
                           height: 120,
@@ -73,8 +72,7 @@ void _navigateToDetail(BuildContext context) {
                           errorBuilder: (context, error, stackTrace) {
                             return _buildPlaceholderImage();
                           },
-                        )
-                      : _buildPlaceholderImage(),
+                        ),
                 ),
               ),
               const SizedBox(width: 12),
