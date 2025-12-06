@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:workstation_flutter/core/enums/status.dart';
 import 'package:workstation_flutter/core/storage/auth_repository.dart';
+import 'package:workstation_flutter/core/storage/token_storage.dart';
+import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:workstation_flutter/features/chats/domain/chat.dart';
 import 'package:workstation_flutter/features/chats/presentation/chat_details_page.dart';
 import 'package:workstation_flutter/features/chats/presentation/chats_page.dart';
@@ -20,6 +22,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   String? _userId;
+  String? _userName;
 
   final List<Chat> _recentChats = [
     Chat(
@@ -50,6 +53,7 @@ class _HomePageState extends State<HomePage> {
     super.initState();
     context.read<SearchBloc>().add(LoadUnavailableOffices());
     _loadUserId();
+    _loadUserName();
   }
 
   void _loadUserId() async {
@@ -58,6 +62,34 @@ class _HomePageState extends State<HomePage> {
     setState(() {
       _userId = id;
     });
+  }
+
+  Future<void> _loadUserName() async {
+    try {
+      final token = await TokenStorage().read();
+      if (token == null || token.isEmpty) return;
+
+      final Map<String, dynamic> claims = JwtDecoder.decode(token);
+
+      String name = '';
+      if ((claims['given_name'] ?? claims['firstName'] ?? claims['givenName']) != null) {
+        final first = (claims['given_name'] ?? claims['firstName'] ?? claims['givenName']) as String? ?? '';
+        final last = (claims['family_name'] ?? claims['lastName'] ?? claims['familyName']) as String? ?? '';
+        name = ('$first $last').trim();
+      } else if (claims['name'] != null) {
+        name = claims['name'] as String;
+      } else if (claims['email'] != null) {
+        name = (claims['email'] as String).split('@').first;
+      }
+
+      if (mounted) {
+        setState(() {
+          _userName = name;
+        });
+      }
+    } catch (_) {
+      // ignore errors and keep header default
+    }
   }
 
   @override
@@ -79,9 +111,9 @@ class _HomePageState extends State<HomePage> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
-                    'Bienvenido Rodrigo',
-                    style: TextStyle(
+                  Text(
+                    _userName != null && _userName!.isNotEmpty ? 'Bienvenido ${_userName!}' : 'Bienvenido',
+                    style: const TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
                       color: Colors.black87,

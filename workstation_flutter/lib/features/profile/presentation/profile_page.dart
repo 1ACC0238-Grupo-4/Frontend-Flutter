@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:workstation_flutter/features/profile/domain/user.dart';
+import 'package:workstation_flutter/core/storage/token_storage.dart';
+import 'package:workstation_flutter/features/auth/presentation/pages/login_page.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -14,15 +17,45 @@ class _ProfilePageeState extends State<ProfilePage> {
   @override
   void initState() {
     super.initState();
+
     _currentUser = User(
-      firstName: 'Rodrigo',
-      lastName: 'García',
-      dni: '12345678',
-      phoneNumber: '+51 987 654 321',
-      email: 'rodrigo.garcia@email.com',
+      firstName: '',
+      lastName: '',
+      dni: '',
+      phoneNumber: '',
+      email: '',
     );
+    _loadCurrentUser();
   }
 
+
+  Future<void> _loadCurrentUser() async {
+    try {
+      final token = await TokenStorage().read();
+      if (token == null || token.isEmpty) return;
+
+      final Map<String, dynamic> claims = JwtDecoder.decode(token);
+
+      final firstName = (claims['given_name'] ?? claims['firstName'] ?? claims['givenName'] ?? (claims['name'] is String ? (claims['name'] as String).split(' ').first : null) ?? '') as String;
+      final lastName = (claims['family_name'] ?? claims['lastName'] ?? claims['familyName'] ?? (claims['name'] is String ? (claims['name'] as String).split(' ').skip(1).join(' ') : null) ?? '') as String;
+      final email = (claims['email'] ?? claims['Email'] ?? '') as String;
+      final dni = (claims['dni'] ?? '') as String;
+      final phone = (claims['phone'] ?? claims['phoneNumber'] ?? '') as String;
+
+      setState(() {
+        _currentUser = User(
+          firstName: firstName.isEmpty ? _currentUser.firstName : firstName,
+          lastName: lastName.isEmpty ? _currentUser.lastName : lastName,
+          dni: dni.isEmpty ? _currentUser.dni : dni,
+          phoneNumber: phone.isEmpty ? _currentUser.phoneNumber : phone,
+          email: email.isEmpty ? _currentUser.email : email,
+        );
+      });
+    } catch (e) {
+      // If token can't be decoded or claims missing, keep defaults.
+      // Consider logging the error in real app.
+    }
+  }
 
   void _editField(String fieldName, String currentValue) {
     final controller = TextEditingController(text: currentValue);
@@ -76,30 +109,39 @@ class _ProfilePageeState extends State<ProfilePage> {
     );
   }
 
-  void _showDeleteDialog() {
+  void _confirmLogout() {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Eliminar usuario'),
-          content: const Text('¿Estás seguro que deseas eliminar tu cuenta? Esta acción no se puede deshacer.'),
+          title: const Text('Cerrar sesión'),
+          content: const Text('¿Deseas cerrar sesión en tu cuenta?'),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
               child: const Text('Cancelar'),
             ),
             ElevatedButton(
-              onPressed: () {
-                // TODO: Implement delete user logic
+              onPressed: () async {
                 Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Cuenta eliminada')),
-                );
+                try {
+                  await TokenStorage().delete();
+
+                  // Navigate back to Login and remove all previous routes
+                  Navigator.of(context).pushAndRemoveUntil(
+                    MaterialPageRoute(builder: (_) => const LoginPage()),
+                    (route) => false,
+                  );
+                } catch (e) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Error al cerrar sesión')),
+                  );
+                }
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red,
+                backgroundColor: const Color(0xFF689F38),
               ),
-              child: const Text('Eliminar'),
+              child: const Text('Cerrar sesión'),
             ),
           ],
         );
@@ -191,7 +233,7 @@ class _ProfilePageeState extends State<ProfilePage> {
                       children: [
                         Expanded(
                           child: ElevatedButton(
-                            onPressed: _showDeleteDialog,
+                            onPressed: _confirmLogout,
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xFF689F38), 
                               foregroundColor: Colors.white,
@@ -201,7 +243,7 @@ class _ProfilePageeState extends State<ProfilePage> {
                               ),
                             ),
                             child: const Text(
-                              'Eliminar usuario',
+                              'Cerrar sesión',
                               style: TextStyle(fontSize: 16),
                             ),
                           ),
