@@ -65,7 +65,7 @@ void _navigateToDetail(BuildContext context) {
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(15),
                   child: Image.network(
-                          office.imageUrl!,
+                          office.imageUrl,
                           width: 120,
                           height: 120,
                           fit: BoxFit.cover,

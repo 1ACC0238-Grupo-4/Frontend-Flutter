@@ -33,7 +33,7 @@ class OfficeDetailPage extends StatelessWidget {
               background: Hero(
                 tag: 'office_${office.id}',
                 child: Image.network(
-                        office.imageUrl!,
+                        office.imageUrl,
                         fit: BoxFit.cover,
                         loadingBuilder: (context, child, loadingProgress) {
                           if (loadingProgress == null) return child;
